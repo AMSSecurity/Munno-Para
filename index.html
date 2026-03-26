@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D1B2A">
 <title>Munno Para — AMS Security Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -324,13 +328,151 @@
   footer { background: var(--navy); color: rgba(255,255,255,0.4); text-align: center; padding: 1.5rem; font-size: 12px; margin-top: 3rem; }
   footer span { color: var(--gold); }
 
+  /* ══════════════════════════════════════
+     RESPONSIVE — TABLET (max 900px)
+  ══════════════════════════════════════ */
   @media (max-width: 900px) {
     .main { grid-template-columns: 1fr; padding: 0 1rem; }
     .form-row { grid-template-columns: 1fr; }
     nav { padding: 0 1rem; }
     .nav-links { display: none; }
     .hero { padding: 2rem 1rem; }
+    .hero-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
     .tab-bar { padding: 0 1rem; }
+  }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE — MOBILE (max 600px)
+  ══════════════════════════════════════ */
+  @media (max-width: 600px) {
+
+    /* Login */
+    #login-screen { padding: 1rem; align-items: flex-start; padding-top: 3rem; }
+    .login-card { padding: 1.75rem 1.25rem; border-radius: 12px; }
+    .login-logo { width: 44px; height: 44px; font-size: 17px; }
+    .login-card h1 { font-size: 1.2rem; }
+
+    /* Nav */
+    nav { height: 56px; padding: 0 1rem; }
+    .nav-logo { width: 30px; height: 30px; font-size: 13px; }
+    .nav-title { font-size: 13px; }
+    .nav-subtitle { display: none; }
+    .nav-user { display: none; }
+    .btn-signout { font-size: 11px; padding: 5px 10px; }
+
+    /* Hero */
+    .hero { padding: 1.25rem 1rem 1rem; }
+    .hero h1 { font-size: 1.3rem; }
+    .hero p { font-size: 12px; }
+    .hero-badge { font-size: 10px; padding: 3px 8px; }
+
+    /* Tab bar — scrollable, larger touch targets */
+    .tab-bar { padding: 0 0.5rem; gap: 2px; }
+    .tab-btn { padding: 12px 14px; font-size: 12px; }
+
+    /* Layout */
+    .main { padding: 0 0.75rem; margin: 1rem auto; gap: 1rem; }
+
+    /* Section cards */
+    .section-header { padding: 1rem; flex-wrap: wrap; gap: 8px; }
+    .section-title h2 { font-size: 14px; }
+    .section-icon { width: 28px; height: 28px; font-size: 13px; }
+    .form-wrap { padding: 1rem; gap: 1rem; }
+
+    /* Table — make it scrollable and readable on mobile */
+    .register-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { font-size: 12px; min-width: 520px; }
+    th { padding: 8px 10px; font-size: 10px; }
+    td { padding: 10px 10px; }
+    .poi-photo { width: 30px; height: 30px; }
+    .poi-no-photo { width: 30px; height: 30px; font-size: 13px; }
+
+    /* Status bar wraps tightly on mobile */
+    .status-bar { padding: 6px 10px 8px; gap: 3px; }
+    .sb { font-size: 10px; padding: 3px 7px; }
+
+    /* Table toolbar */
+    .table-toolbar { padding: 0.75rem 1rem; flex-wrap: wrap; gap: 8px; }
+    .table-toolbar input { min-width: 0; font-size: 14px; }
+
+    /* Forms */
+    .form-group label { font-size: 12px; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea { font-size: 16px; padding: 10px 12px; } /* 16px stops iOS zoom */
+    .form-group textarea { min-height: 90px; }
+    .form-section-label { font-size: 10px; }
+
+    /* Image upload */
+    .img-upload-zone { padding: 1.25rem 1rem; }
+
+    /* Buttons — bigger touch targets */
+    .btn-primary { padding: 9px 16px; font-size: 13px; }
+    .btn-ghost { padding: 9px 12px; font-size: 12px; }
+    .btn-submit { padding: 11px 20px; font-size: 14px; width: 100%; }
+    .btn-login { padding: 13px; font-size: 15px; }
+    .form-actions { flex-direction: column-reverse; gap: 8px; }
+    .form-actions .btn-ghost { width: 100%; text-align: center; }
+
+    /* Shift notes */
+    .note-item { padding: 1rem; }
+    .note-author { font-size: 12px; }
+    .note-body { font-size: 13px; }
+    .note-time { font-size: 10px; }
+
+    /* Documents */
+    .doc-item { padding: 0.75rem 1rem; gap: 10px; }
+    .doc-name { font-size: 13px; }
+    .doc-meta { font-size: 11px; }
+    .doc-btn { width: 34px; height: 34px; font-size: 15px; }
+
+    /* Warnings banner */
+    #warnings-banner { padding: 0.75rem 1rem; }
+    .warning-item { padding: 8px 10px; gap: 8px; }
+    .warning-item-name { font-size: 12px; }
+    .warning-item-text { font-size: 11px; }
+
+    /* Sidebar — full width on mobile */
+    .right-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .stat-num { font-size: 1.4rem; }
+    .stat-label { font-size: 10px; }
+
+    /* Stats grid compact */
+    .stat-cell { padding: 0.75rem 0.5rem; }
+
+    /* Daily log iframe */
+    #log-iframe { height: 60vh; }
+
+    /* Edit modal */
+    .modal { border-radius: 10px 10px 0 0; max-height: 95vh; }
+    .modal-overlay { align-items: flex-end; padding: 0; }
+    .modal-header { padding: 1rem; }
+    .modal-footer { padding: 0.75rem 1rem; }
+
+    /* Doc viewer */
+    .doc-viewer-header { padding: 0 1rem; height: 50px; }
+    .doc-viewer-header h3 { font-size: 12px; }
+    .btn-print { padding: 6px 12px; font-size: 12px; }
+    .btn-viewer-close { padding: 6px 10px; font-size: 12px; }
+
+    /* Toast — full width on mobile */
+    .toast { left: 0.75rem; right: 0.75rem; bottom: 1rem; min-width: unset; max-width: unset; }
+
+    /* Lightbox */
+    .lightbox img { max-width: 96vw; max-height: 80vh; }
+    .lightbox-caption { font-size: 12px; padding: 5px 12px; }
+
+    /* Footer */
+    footer { padding: 1rem; font-size: 11px; margin-top: 2rem; }
+  }
+
+  /* ══════════════════════════════════════
+     MOBILE — very small screens (max 380px)
+  ══════════════════════════════════════ */
+  @media (max-width: 380px) {
+    .right-col { grid-template-columns: 1fr; }
+    .tab-btn { padding: 10px 10px; font-size: 11px; }
+    .hero h1 { font-size: 1.1rem; }
   }
 </style>
 </head>
@@ -369,8 +511,8 @@
       </div>
     </div>
     <div class="nav-links">
-      <a onclick="switchTab('poi')">POI Register</a>
       <a onclick="switchTab('notes')">Shift Notes</a>
+      <a onclick="switchTab('poi')">POI Register</a>
       <a onclick="switchTab('docs')">Documents</a>
       <a onclick="switchTab('log')">Daily Log</a>
     </div>
@@ -392,14 +534,14 @@
 
   <!-- TABS -->
   <div class="tab-bar">
-    <button class="tab-btn active" id="tab-poi" onclick="switchTab('poi')">🔍 POI Register</button>
-    <button class="tab-btn" id="tab-notes" onclick="switchTab('notes')">📋 Shift Notes <span id="notes-badge" class="tab-badge" style="display:none"></span></button>
+    <button class="tab-btn active" id="tab-notes" onclick="switchTab('notes')">📋 Shift Notes <span id="notes-badge" class="tab-badge" style="display:none"></span></button>
+    <button class="tab-btn" id="tab-poi" onclick="switchTab('poi')">🔍 POI Register</button>
     <button class="tab-btn" id="tab-docs" onclick="switchTab('docs')">📁 Documents</button>
     <button class="tab-btn" id="tab-log" onclick="switchTab('log')">📊 Daily Log</button>
   </div>
 
   <!-- ══ TAB: POI REGISTER ══ -->
-  <div id="content-poi" class="tab-content active">
+  <div id="content-poi" class="tab-content">
     <div class="main">
       <div class="left-col">
         <div class="section-card" id="register">
@@ -570,7 +712,7 @@
   </div>
 
   <!-- ══ TAB: SHIFT NOTES ══ -->
-  <div id="content-notes" class="tab-content">
+  <div id="content-notes" class="tab-content active">
     <div class="main">
       <div class="left-col">
 
@@ -1773,7 +1915,7 @@
   // ══════════════════════════════
   let lastNoteTimestamp = null;
   let newNotesCount = 0;
-  let currentTab = 'poi';
+  let currentTab = 'notes';
   let pollInterval = null;
   let toastTimeout = null;
 
