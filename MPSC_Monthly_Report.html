@@ -501,45 +501,74 @@ function fetchSummary() {
 
 // Convert getSummary response to the DATA format the report expects
 function convertSummaryToData(res) {
-  var d = res.data;
-  var months = d.months || FALLBACK.months;
+  // Handle both shapes:
+  // Shape A (from handleRequest wrapper): { success: true, data: { months, curr, prev, stdCats, emgCats } }
+  // Shape B (direct): { months, curr, prev, stdCats, emgCats }
+  var d = (res.data && res.data.months) ? res.data
+        : (res.months)                  ? res
+        : (res.data && res.data.data)   ? res.data.data  // double-wrapped
+        : null;
 
-  // Build curr and prev objects keyed by category name
-  var curr = {};
-  var prev = {};
-  var stdCats = d.stdCats || FALLBACK.categories_standard;
-  var emgCats = d.emgCats || FALLBACK.categories_emergency;
+  if (!d) {
+    console.error('getSummary: unexpected response shape', JSON.stringify(res).slice(0, 500));
+    showDebug('Unexpected response shape. Raw: ' + JSON.stringify(res).slice(0, 800));
+    return null;
+  }
+
+  var months  = d.months  || ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+  var stdCats = d.stdCats || d.categories_standard || FALLBACK.categories_standard;
+  var emgCats = d.emgCats || d.categories_emergency || FALLBACK.categories_emergency;
   var allCats = stdCats.concat(emgCats);
 
+  var curr = {}, prev = {};
   allCats.forEach(function(cat) {
-    curr[cat] = d.curr[cat] || new Array(12).fill(0);
-    prev[cat] = d.prev[cat] || new Array(12).fill(0);
+    curr[cat] = (d.curr && d.curr[cat]) ? d.curr[cat] : new Array(12).fill(0);
+    prev[cat] = (d.prev && d.prev[cat]) ? d.prev[cat] : new Array(12).fill(0);
   });
 
-  // Build year labels from financial year
-  var fy = (d.currYearLabel || '2025/26').replace('20','');  // "25/26"
-  var fyParts = fy.split('/');
-  var y1 = '20' + (fyParts[0]||'25');  // "2025"
-  var y2 = '20' + (fyParts[1]||'26');  // "2026"
-  var py1 = String(parseInt(y1)-1);
-  var py2 = String(parseInt(y2)-1);
+  var currLabel = d.currYearLabel || d.fyLabel || '2025/26';
+  var prevLabel = d.prevYearLabel || d.fyPrev  || '2024/25';
 
-  // Financial year month order: Jul=y1, Aug=y1...Dec=y1, Jan=y2...Jun=y2
-  var mLabels = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
-  var currLabels = mLabels.map(function(m,i){ return m + ' ' + (i<6 ? y1.slice(2) : y2.slice(2)); });
-  var prevLabels = mLabels.map(function(m,i){ return m + ' ' + (i<6 ? py1.slice(2) : py2.slice(2)); });
+  // Build month display labels e.g. "Jul 25"
+  var parts = currLabel.replace(/20/g,'').split('/');  // ['25','26']
+  var cy1 = parts[0] || '25';
+  var cy2 = parts[1] || '26';
+  var pparts = prevLabel.replace(/20/g,'').split('/');
+  var py1 = pparts[0] || '24';
+  var py2 = pparts[1] || '25';
+
+  var mShort = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+  var currLabels = mShort.map(function(m,i){ return m + ' ' + (i < 6 ? cy1 : cy2); });
+  var prevLabels = mShort.map(function(m,i){ return m + ' ' + (i < 6 ? py1 : py2); });
+
+  // Debug: show how many categories loaded
+  var catCount = Object.keys(d.curr || {}).length;
+  showDebug('✓ Loaded ' + catCount + ' categories from Google Sheets (' + currLabel + ')');
 
   return {
-    months: months,
-    fy_curr: d.currYearLabel || '2025/26',
-    fy_prev: d.prevYearLabel || '2024/25',
-    curr: curr,
-    prev: prev,
-    categories_standard: stdCats,
+    months:               months,
+    fy_curr:              currLabel,
+    fy_prev:              prevLabel,
+    curr:                 curr,
+    prev:                 prev,
+    categories_standard:  stdCats,
     categories_emergency: emgCats,
-    _monthLabels: currLabels,
-    _monthLabelsPrev: prevLabels
+    _monthLabels:         currLabels,
+    _monthLabelsPrev:     prevLabels
   };
+}
+
+function showDebug(msg) {
+  // Show a small temporary debug bar at the top
+  var el = document.getElementById('debug-bar');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'debug-bar';
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9998;background:#1d4ed8;color:#fff;font-size:12px;padding:6px 16px;font-family:monospace;';
+    document.body.prepend(el);
+    setTimeout(function(){ if(el.parentNode) el.remove(); }, 8000);
+  }
+  el.textContent = msg;
 }
 
 function initReport(DATA) {
@@ -582,14 +611,19 @@ window.useFallback = function() {
 // ── START: fetch live then init ────────────────────────────────
 fetchSummary()
   .then(function(res) {
-    if (res && res.success && res.data) {
-      initReport(convertSummaryToData(res));
+    if (res && res.success === false) {
+      showError('Apps Script error: ' + (res.error || 'Unknown'));
+      return;
+    }
+    var converted = convertSummaryToData(res);
+    if (converted) {
+      initReport(converted);
     } else {
-      showError('Apps Script returned an error: ' + (res && res.error ? res.error : 'Unknown'));
+      showError('Could not parse the data returned by Apps Script. Check debug bar for details.');
     }
   })
   .catch(function(err) {
-    showError('Make sure the getSummary action is added to your Apps Script. (' + err.message + ')');
+    showError('Failed to connect to Apps Script: ' + err.message + '. Make sure the script is deployed and getSummary is added.');
   });
 
 // ── HELPER FUNCTIONS (needed before initReport runs) ──────────
