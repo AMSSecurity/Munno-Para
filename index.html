@@ -331,8 +331,38 @@
   footer { background: var(--navy); color: rgba(255,255,255,0.4); text-align: center; padding: 1.5rem; font-size: 12px; margin-top: 3rem; }
   footer span { color: var(--gold); }
 
-  /* ══════════════════════════════════════
-     RESPONSIVE — TABLET (max 900px)
+  /* ── SUB TABS ── */
+  .sub-tab-btn { padding: 11px 18px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap; margin-bottom: -1px; }
+  .sub-tab-btn:hover { color: var(--text-primary); }
+  .sub-tab-btn.active { color: var(--navy); border-bottom-color: var(--gold); }
+  .sub-tab-content { display: none; }
+  .sub-tab-content.active { display: block; }
+
+  /* ── LOG INCIDENT BADGES ── */
+  .log-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:500; white-space:nowrap; }
+  .lb-theft{background:#fffbeb;color:#d97706;border:1px solid #fde68a;}
+  .lb-assault{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+  .lb-alarm{background:#fff7ed;color:#ea580c;border:1px solid #fed7aa;}
+  .lb-anti{background:#fff7ed;color:#c2410c;border:1px solid #fdba74;}
+  .lb-intox{background:#faf5ff;color:#7c3aed;border:1px solid #ddd6fe;}
+  .lb-lost{background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;}
+  .lb-aid{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+  .lb-maint{background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;}
+  .lb-on{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
+  .lb-off{background:#f8fafc;color:#94a3b8;border:1px solid #e2e8f0;}
+  .lb-sec{background:#ecfeff;color:#0891b2;border:1px solid #a5f3fc;}
+  .lb-drug{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;}
+  .lb-fire{background:#fef2f2;color:#ef4444;border:1px solid #f87171;}
+  .lb-other{background:#f8fafc;color:#94a3b8;border:1px solid #e2e8f0;}
+
+  /* ── REPORT KPI ── */
+  .report-kpi { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:1.25rem; }
+  .report-kpi-num { font-family:'Libre Baskerville',serif; font-size:2rem; font-weight:700; color:var(--navy); line-height:1; margin:6px 0 4px; }
+  .report-kpi-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; }
+  .report-kpi-change { font-size:12px; margin-top:4px; font-weight:500; }
+  .kpi-up{color:#dc2626;} .kpi-down{color:#16a34a;} .kpi-zero{color:var(--text-muted);}
+
+
   ══════════════════════════════════════ */
   @media (max-width: 900px) {
     .main { grid-template-columns: 1fr; padding: 0 1rem; }
@@ -478,6 +508,7 @@
     .hero h1 { font-size: 1.1rem; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -517,7 +548,7 @@
       <a onclick="switchTab('notes')">Shift Notes</a>
       <a onclick="switchTab('poi')">POI Register</a>
       <a onclick="switchTab('docs')">Documents</a>
-      <a onclick="switchTab('log')">Daily Log</a>
+      <a onclick="switchTab('log')">Security Log</a>
     </div>
     <div class="nav-right">
       <div class="nav-user">Signed in as <strong id="nav-email"></strong></div>
@@ -540,7 +571,7 @@
     <button class="tab-btn active" id="tab-notes" onclick="switchTab('notes')">📋 Shift Notes <span id="notes-badge" class="tab-badge" style="display:none"></span></button>
     <button class="tab-btn" id="tab-poi" onclick="switchTab('poi')">🔍 POI Register</button>
     <button class="tab-btn" id="tab-docs" onclick="switchTab('docs')">📁 Documents</button>
-    <button class="tab-btn" id="tab-log" onclick="switchTab('log')">📊 Daily Log</button>
+    <button class="tab-btn" id="tab-log" onclick="switchTab('log')">📋 Security Log</button>
   </div>
 
   <!-- ══ TAB: POI REGISTER ══ -->
@@ -836,56 +867,34 @@
     </div>
   </div>
 
-  <!-- ══ TAB: DAILY LOG ══ -->
+  <!-- ══ TAB: SECURITY LOG ══ -->
   <div id="content-log" class="tab-content">
-    <div style="max-width:1200px; margin:2rem auto; padding:0 2.5rem; display:flex; flex-direction:column; gap:1rem;">
+    <div style="max-width:1400px; margin:0 auto; padding:0;">
 
-      <div class="section-card">
-        <div class="section-header">
-          <div class="section-title">
-            <div class="section-icon">📊</div>
-            <div>
-              <h2>Daily Log</h2>
-              <span>Live spreadsheet — edits save automatically to OneDrive</span>
-            </div>
-          </div>
-          <a href="https://amssecurity-my.sharepoint.com/:x:/g/personal/compliance_ams-security_com_au/IQDnuoDV68XTTJTGfTaA92y4AX4BWVHKMc4f8NL58EncwYA?e=dvkSUj"
-             target="_blank" class="btn-ghost" style="text-decoration:none; font-size:12px;">
-            ↗ Open in Excel Online
-          </button>
-          </a>
-        </div>
-        <div style="position:relative; width:100%; background:var(--surface);">
-          <div id="log-loading" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; background:var(--surface); z-index:1; pointer-events:none;">
-            <div style="font-size:2rem">📊</div>
-            <div style="font-size:13px; color:var(--text-muted);">Loading spreadsheet...</div>
-            <div style="font-size:11px; color:var(--text-muted);">You may need to sign in with your Microsoft account</div>
-          </div>
-          <iframe
-            id="log-iframe"
-            src="https://amssecurity-my.sharepoint.com/:x:/g/personal/compliance_ams-security_com_au/IQDnuoDV68XTTJTGfTaA92y4AX4BWVHKMc4f8NL58EncwYA?e=dvkSUj&action=embedview&wdAllowInteractivity=True&wdHideGridlines=False&wdHideHeaders=False&wdDownloadButton=True&wdInConfigurator=True"
-            style="width:100%; height:75vh; border:none; display:block;"
-            onload="document.getElementById('log-loading').style.display='none'"
-            allowfullscreen>
-          </iframe>
-        </div>
+      <!-- Sub-tab bar -->
+      <div style="background:var(--white); border-bottom:1px solid var(--border); padding:0 2.5rem; display:flex; gap:0;">
+        <button class="sub-tab-btn active" id="sub-tab-log" onclick="switchSubTab('log')">📋 Security Log</button>
+        <button class="sub-tab-btn" id="sub-tab-report" onclick="switchSubTab('report')">📊 Monthly Report</button>
       </div>
 
-      <div class="section-card">
-        <div style="padding:1rem 1.5rem; display:flex; gap:2rem; flex-wrap:wrap;">
-          <div style="font-size:12.5px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
-            <span style="font-size:15px">✏️</span> Edits save automatically to OneDrive
-          </div>
-          <div style="font-size:12.5px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
-            <span style="font-size:15px">👥</span> All authorised users see the same live data
-          </div>
-          <div style="font-size:12.5px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
-            <span style="font-size:15px">↗</span> Use "Open in Excel" above for full editing features
-          </div>
-          <div style="font-size:12.5px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
-            <span style="font-size:15px">🔒</span> Requires Microsoft sign-in if prompted
-          </div>
-        </div>
+      <!-- ── SECURITY LOG SUB-TAB ── -->
+      <div id="sub-content-log" class="sub-tab-content active">
+        <iframe
+          src="MPSC_Security_Log_Sheets_5_.html"
+          id="log-frame"
+          style="width:100%; height:calc(100vh - 130px); border:none; display:block;"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <!-- ── MONTHLY REPORT SUB-TAB ── -->
+      <div id="sub-content-report" class="sub-tab-content">
+        <iframe
+          src="MPSC_Monthly_Report.html"
+          id="report-frame"
+          style="width:100%; height:calc(100vh - 130px); border:none; display:block;"
+          allowfullscreen>
+        </iframe>
       </div>
 
     </div>
@@ -1999,7 +2008,13 @@
     if (pollInterval) clearInterval(pollInterval);
   }
 
-  // Override switchTab to track current tab and clear badge
+  // ══════════════════════════════
+  // SECURITY LOG — loaded via iframe (MPSC_Security_Log_Sheets_5_.html)
+  // MONTHLY REPORT — loaded via iframe (MPSC_Monthly_Report.html)
+  // Both files must be in the same folder as this portal file
+  // ══════════════════════════════
+
+  // Merge into the main switchTab
   window.switchTab = function(tab) {
     currentTab = tab;
     ['poi','notes','docs','log'].forEach(t => {

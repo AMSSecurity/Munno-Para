@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Munno Para SC — Monthly Security Report</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f4f6f9;
+  --white: #ffffff;
+  --surface: #ffffff;
+  --surface2: #f8fafc;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --text: #0f172a;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --accent: #1d4ed8;
+  --accent-light: #eff6ff;
+  --accent-mid: #3b82f6;
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+  --success: #16a34a;
+  --success-light: #f0fdf4;
+  --warning: #d97706;
+  --warning-light: #fffbeb;
+  --neutral: #64748b;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --radius: 10px;
+  --sans: 'Inter', -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+/* ── HEADER ─────────────────────────────── */
+.app-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex; align-items: center; gap: 20px;
+  height: 60px;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: var(--shadow);
+}
+.app-logo {
+  font-size: 15px; font-weight: 700; color: var(--accent);
+  letter-spacing: -0.01em;
+}
+.app-logo span { color: var(--text3); font-weight: 400; margin: 0 4px; }
+.app-divider { width: 1px; height: 20px; background: var(--border); }
+.app-subtitle { font-size: 13px; color: var(--text2); font-weight: 500; }
+.header-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+
+/* ── NAV TABS ───────────────────────────── */
+.nav-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+}
+.nav-tab {
+  padding: 14px 20px;
+  font-size: 13px; font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  user-select: none;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── MAIN ───────────────────────────────── */
+.main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+/* ── PAGE HEADER ────────────────────────── */
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 24px; gap: 16px;
+}
+.page-title { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.page-subtitle { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+/* ── BUTTONS ────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: 7px;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  cursor: pointer; border: 1px solid transparent;
+  transition: all 0.15s; white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: #1e40af; }
+.btn-outline { background: var(--white); color: var(--text2); border-color: var(--border2); }
+.btn-outline:hover { background: var(--surface2); color: var(--text); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* ── STAT CARDS ─────────────────────────── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.stat-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; letter-spacing: -0.02em; }
+.stat-change {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 500; margin-top: 6px;
+  padding: 2px 7px; border-radius: 20px;
+}
+.stat-change.up { color: var(--danger); background: var(--danger-light); }
+.stat-change.down { color: var(--success); background: var(--success-light); }
+.stat-change.neutral { color: var(--neutral); background: #f1f5f9; }
+.stat-change.up-good { color: var(--success); background: var(--success-light); }
+
+/* ── CHART SECTION ──────────────────────── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.card-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.card-subtitle { font-size: 12px; color: var(--text3); margin-top: 1px; }
+.card-body { padding: 20px; }
+.chart-wrap { position: relative; }
+
+/* ── MONTH SELECTOR ─────────────────────── */
+.month-pills {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 20px;
+}
+.month-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  background: var(--white);
+  transition: all 0.15s;
+}
+.month-pill:hover { border-color: var(--accent-mid); color: var(--accent); }
+.month-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.month-pill.no-data { opacity: 0.4; }
+.all-pill { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+
+/* ── DATA TABLE ─────────────────────────── */
+.data-table-wrap { overflow-x: auto; }
+table.report-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.report-table thead th {
+  background: var(--surface2);
+  border-bottom: 2px solid var(--border);
+  padding: 10px 14px;
+  text-align: right;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text3); white-space: nowrap;
+}
+.report-table thead th:first-child { text-align: left; }
+.report-table thead th.month-header { color: var(--accent); }
+.report-table thead th.active-month { background: var(--accent-light); color: var(--accent); }
+
+.report-table tbody tr { transition: background 0.1s; }
+.report-table tbody tr:hover { background: #f8fafc; }
+.report-table tbody tr.section-header td {
+  background: var(--surface2);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3); padding: 8px 14px;
+  border-top: 2px solid var(--border);
+}
+.report-table tbody tr.subtotal-row td {
+  font-weight: 600; background: #f1f5f9;
+  border-top: 1px solid var(--border2);
+  border-bottom: 1px solid var(--border2);
+}
+.report-table tbody tr.grand-total td {
+  font-weight: 700; background: var(--accent); color: #fff;
+  font-size: 13px;
+}
+.report-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  color: var(--text2);
+  font-family: var(--mono); font-size: 12px;
+}
+.report-table td:first-child {
+  text-align: left; font-family: var(--sans); font-size: 13px;
+  color: var(--text); font-weight: 400;
+}
+.report-table td.zero { color: var(--text3); }
+.report-table td.highlight { font-weight: 600; color: var(--text); }
+.report-table td.curr-month { background: var(--accent-light); font-weight: 600; color: var(--accent); }
+.report-table td.diff-up { color: var(--danger); }
+.report-table td.diff-down { color: var(--success); }
+.report-table td.diff-zero { color: var(--text3); }
+
+/* ── COMPARISON BADGE ───────────────────── */
+.cmp-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; font-weight: 500; padding: 2px 6px; border-radius: 4px;
+}
+.cmp-up { background: #fef2f2; color: #dc2626; }
+.cmp-down { background: #f0fdf4; color: #16a34a; }
+.cmp-zero { background: #f1f5f9; color: #64748b; }
+
+/* ── SECTION LABELS ─────────────────────── */
+.section-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 24px 0 14px;
+}
+.section-divider-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text3); white-space: nowrap;
+}
+.section-divider-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ── MINI BARS ──────────────────────────── */
+.mini-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.mini-bar {
+  flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+  max-width: 60px;
+}
+.mini-bar-fill { height: 100%; border-radius: 3px; background: var(--accent-mid); transition: width 0.3s; }
+
+/* ── MONTH VIEW ─────────────────────────── */
+.month-comparison {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 20px;
+}
+.year-block { }
+.year-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text3); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.year-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-weight: 600;
+}
+.year-badge.curr { background: var(--accent); color: #fff; }
+.year-badge.prev { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+
+/* ── PRINT ──────────────────────────────── */
+@media print {
+  .app-header, .nav-bar, .month-pills, .header-right, .no-print { display: none !important; }
+  .main { padding: 0; }
+  .card { box-shadow: none; border: 1px solid #ddd; }
+  body { background: white; }
+}
+
+/* ── RESPONSIVE ─────────────────────────── */
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+  .month-comparison { grid-template-columns: 1fr; }
+  .main { padding: 16px; }
+  .app-header { padding: 0 16px; }
+  .nav-bar { padding: 0 16px; }
+}
+
+.tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 4px; }
+.tag-blue { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.tag-grey { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+
+.fy-switcher { display: flex; align-items: center; gap: 6px; }
+.fy-btn { padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border2); background: var(--white); color: var(--text2); transition: all 0.15s; }
+.fy-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-logo">MPSC <span>/</span> Security Reports</div>
+  <div class="app-divider"></div>
+  <div class="app-subtitle">Munno Para Shopping Centre</div>
+  <div class="header-right">
+    <button class="btn btn-outline btn-sm no-print" onclick="window.print()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Print / PDF
+    </button>
+    <a href="MPSC_Security_Log.html" class="btn btn-primary btn-sm no-print">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Security Log
+    </a>
+  </div>
+</div>
+
+<div class="nav-bar" id="navBar">
+  <div class="nav-tab active" onclick="showView('overview', this)">Overview</div>
+  <div class="nav-tab" onclick="showView('month', this)" id="monthTabLabel">Monthly Detail</div>
+  <div class="nav-tab" onclick="showView('table', this)">Full Summary Table</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- OVERVIEW VIEW                                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="view-overview" class="main">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Annual Overview — FY 2025/26</div>
+      <div class="page-subtitle">Compared to FY 2024/25 · Jul–Jun financial year</div>
+    </div>
+    <div class="no-print" style="display:flex;gap:8px;align-items:center;">
+      <span style="font-size:12px;color:var(--text3);">Select month for detail:</span>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="stat-grid" id="kpiGrid"></div>
+
+  <!-- Month selector pills -->
+  <div class="month-pills" id="overviewPills"></div>
+
+  <!-- Charts -->
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Monthly Totals — Current vs Previous Year</div>
+          <div class="card-subtitle">Grand total incidents per month</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:240px">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">YTD Incident Breakdown</div>
+          <div class="card-subtitle">FY 2025/26 — top categories</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:240px">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category trend table -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">YTD Category Comparison — 2025/26 vs 2024/25</div>
+        <div class="card-subtitle">Showing totals for months Jul–Sep (data available)</div>
+      </div>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div class="data-table-wrap">
+        <table class="report-table" id="ytdTable"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MONTHLY DETAIL VIEW                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="view-month" class="main" style="display:none">
+  <div class="page-header">
+    <div>
+      <div class="page-title" id="monthViewTitle">Monthly Report</div>
+      <div class="page-subtitle">Current year vs same month previous year</div>
+    </div>
+    <div class="no-print">
+      <select id="monthSelect" onchange="renderMonthView(+this.value)" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:13px;background:var(--white);color:var(--text);outline:none;cursor:pointer;">
+      </select>
+    </div>
+  </div>
+
+  <!-- Month KPIs -->
+  <div class="stat-grid" id="monthKpiGrid"></div>
+
+  <!-- Side by side chart -->
+  <div class="chart-grid" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title" id="monthChartTitle">Category breakdown this month</div>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:260px">
+          <canvas id="monthBarChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Category Split — Current Month</div>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:260px">
+          <canvas id="monthPieChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail table -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" id="monthTableTitle">Incident Breakdown</div>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div class="data-table-wrap">
+        <table class="report-table" id="monthDetailTable"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FULL TABLE VIEW                                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="view-table" class="main" style="display:none">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Full Summary Table</div>
+      <div class="page-subtitle">All categories · month by month · both financial years</div>
+    </div>
+    <button class="btn btn-outline btn-sm no-print" onclick="window.print()">Print / PDF</button>
+  </div>
+  <div class="card">
+    <div class="card-body" style="padding:0">
+      <div class="data-table-wrap">
+        <table class="report-table" id="fullTable"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────
+const DATA = {"months": ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"], "fy_curr": "2025/26", "fy_prev": "2024/25", "curr": {"Anti Social Behaviour": [8, 9, 11, 10, 21, 4, 1, 16, 8, 0, 0, 0], "Attempted/Suspected Theft": [2, 5, 2, 4, 8, 14, 0, 0, 1, 0, 0, 0], "Assault": [1, 1, 5, 0, 5, 0, 0, 0, 2, 0, 0, 0], "Assault on Security": [2, 2, 0, 0, 3, 0, 1, 3, 0, 0, 0, 0], "Break & Enter from a Retailer": [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0], "Break & Enter from a Vehicle": [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0], "Burgulary": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Drug Use/Needle Found": [2, 2, 0, 2, 0, 3, 0, 2, 0, 0, 0, 0], "General Theft": [6, 8, 3, 8, 7, 5, 1, 20, 7, 0, 0, 0], "General Security": [0, 0, 2, 0, 1, 1, 2, 6, 136, 0, 0, 0], "Intoxication": [1, 2, 0, 2, 5, 1, 1, 5, 0, 0, 0, 0], "Lost Child/Person": [3, 0, 1, 1, 0, 3, 0, 1, 1, 0, 0, 0], "Lost/Found Property": [34, 26, 37, 24, 11, 10, 2, 15, 16, 0, 0, 0], "Maintenance": [12, 7, 4, 5, 4, 10, 0, 16, 2, 0, 0, 0], "Malicious Damage/ Graffiti": [3, 1, 6, 4, 6, 2, 0, 2, 1, 0, 0, 0], "Motor Vehicle Accident & Damage": [0, 1, 0, 1, 2, 1, 0, 0, 0, 0, 0, 0], "Non Malicious Damage": [0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0], "Shop Disturbance": [8, 6, 9, 3, 12, 11, 0, 4, 0, 0, 0, 0], "Theft from a Customer": [0, 0, 2, 2, 0, 0, 0, 1, 0, 0, 0, 0], "Theft of a Vehicle/ Motor Bike": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Unsecured Doors/Shops": [3, 1, 1, 0, 2, 3, 0, 3, 0, 0, 0, 0], "Alarm Activations": [6, 11, 10, 8, 8, 5, 1, 22, 8, 0, 0, 0], "Fire/Fire Alarms": [3, 5, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0], "Bomb Threats": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0], "Gas Leaks": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Damaged Water Pipes/Water Leaks": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Power Outage": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Structural Collapses": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "First Aids & Related": [2, 5, 8, 6, 10, 9, 0, 10, 1, 0, 0, 0]}, "prev": {"Anti Social Behaviour": [10, 0, 17, 22, 18, 17, 16, 21, 20, 5, 17, 8], "Attempted/Suspected Theft": [9, 10, 6, 13, 6, 7, 3, 12, 1, 1, 8, 4], "Assault": [3, 1, 4, 6, 5, 3, 0, 5, 2, 3, 3, 3], "Assault on Security": [1, 0, 2, 2, 0, 0, 0, 1, 0, 0, 0, 1], "Break & Enter from a Retailer": [1, 0, 1, 0, 1, 0, 1, 0, 0, 2, 0, 0], "Break & Enter from a Vehicle": [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0], "Burgulary": [0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1], "Drug Use/Needle Found": [0, 0, 1, 1, 0, 2, 0, 0, 7, 1, 2, 0], "General Theft": [22, 7, 10, 11, 9, 11, 5, 5, 9, 7, 8, 3], "General Security": [19, 36, 24, 15, 14, 15, 2, 1, 0, 8, 0, 0], "Intoxication": [3, 0, 4, 5, 7, 5, 7, 3, 3, 1, 3, 0], "Lost Child/Person": [0, 1, 2, 3, 2, 3, 1, 1, 2, 1, 3, 2], "Lost/Found Property": [8, 8, 9, 7, 8, 8, 10, 21, 26, 13, 25, 17], "Maintenance": [21, 34, 9, 26, 14, 24, 8, 14, 15, 16, 7, 7], "Malicious Damage/ Graffiti": [5, 3, 14, 6, 12, 10, 8, 6, 8, 4, 4, 2], "Motor Vehicle Accident & Damage": [2, 0, 2, 1, 0, 1, 2, 1, 1, 1, 2, 7], "Non Malicious Damage": [0, 0, 4, 0, 5, 0, 2, 3, 1, 0, 1, 3], "Shop Disturbance": [12, 28, 16, 2, 11, 13, 8, 15, 5, 7, 3, 11], "Theft from a Customer": [1, 1, 0, 0, 1, 0, 0, 0, 0, 2, 3, 0], "Theft of a Vehicle/ Motor Bike": [1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0], "Unsecured Doors/Shops": [9, 0, 1, 0, 0, 1, 0, 7, 5, 2, 3, 1], "Alarm Activations": [4, 7, 3, 1, 7, 11, 6, 9, 11, 1, 5, 10], "Fire/Fire Alarms": [2, 5, 2, 2, 2, 0, 0, 0, 0, 0, 3, 0], "Bomb Threats": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Gas Leaks": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], "Damaged Water Pipes/Water Leaks": [0, 0, 0, 4, 1, 2, 3, 1, 1, 0, 1, 0], "Power Outage": [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1], "Structural Collapses": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "First Aids & Related": [13, 9, 6, 11, 9, 7, 4, 9, 8, 7, 7, 3]}, "categories_standard": ["Anti Social Behaviour", "Attempted/Suspected Theft", "Assault", "Assault on Security", "Break & Enter from a Retailer", "Break & Enter from a Vehicle", "Burgulary", "Drug Use/Needle Found", "General Theft", "General Security", "Intoxication", "Lost Child/Person", "Lost/Found Property", "Maintenance", "Malicious Damage/ Graffiti", "Motor Vehicle Accident & Damage", "Non Malicious Damage", "Shop Disturbance", "Theft from a Customer", "Theft of a Vehicle/ Motor Bike", "Unsecured Doors/Shops"], "categories_emergency": ["Alarm Activations", "Fire/Fire Alarms", "Bomb Threats", "Gas Leaks", "Damaged Water Pipes/Water Leaks", "Power Outage", "Structural Collapses", "First Aids & Related"]};
+
+const MONTHS = DATA.months; // Jul Aug Sep Oct Nov Dec Jan Feb Mar Apr May Jun
+const CURR = DATA.curr;
+const PREV = DATA.prev;
+const STD_CATS = DATA.categories_standard;
+const EMG_CATS = DATA.categories_emergency;
+const ALL_CATS = [...STD_CATS, ...EMG_CATS];
+
+// Month labels for display (financial year order)
+const MONTH_LABELS = ['Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26'];
+const MONTH_LABELS_PREV = ['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25'];
+const MONTH_SHORT = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+// Which months have current data (non-zero totals)
+function monthTotal(mi, data) {
+  return ALL_CATS.reduce((s, c) => s + (data[c] ? (data[c][mi] || 0) : 0), 0);
+}
+function stdSubtotal(mi, data) {
+  return STD_CATS.reduce((s, c) => s + (data[c] ? (data[c][mi] || 0) : 0), 0);
+}
+function emgSubtotal(mi, data) {
+  return EMG_CATS.reduce((s, c) => s + (data[c] ? (data[c][mi] || 0) : 0), 0);
+}
+
+const ACTIVE_MONTHS = MONTHS.map((_, i) => monthTotal(i, CURR) > 0);
+const LAST_ACTIVE_MI = ACTIVE_MONTHS.lastIndexOf(true);
+
+// ── VIEWS ─────────────────────────────────────────────────────
+let charts = {};
+
+function showView(name, el) {
+  ['overview','month','table'].forEach(v => {
+    document.getElementById('view-' + v).style.display = 'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + name).style.display = 'block';
+  el.classList.add('active');
+  if (name === 'overview') renderOverview();
+  if (name === 'month') renderMonthView(LAST_ACTIVE_MI);
+  if (name === 'table') renderFullTable();
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────────
+function renderOverview() {
+  renderKPIs();
+  renderOverviewPills();
+  renderBarChart();
+  renderPieChart();
+  renderYTDTable();
+}
+
+function renderKPIs() {
+  const ytdC = MONTHS.map((_,i) => monthTotal(i, CURR)).reduce((s,v,i) => ACTIVE_MONTHS[i] ? s+v : s, 0);
+  const ytdP_same = MONTHS.map((_,i) => ACTIVE_MONTHS[i] ? monthTotal(i, PREV) : 0).reduce((a,b)=>a+b,0);
+
+  // Last active month
+  const mi = LAST_ACTIVE_MI;
+  const currM = monthTotal(mi, CURR);
+  const prevM = monthTotal(mi, PREV);
+
+  const stdYTD = MONTHS.map((_,i) => ACTIVE_MONTHS[i] ? stdSubtotal(i, CURR) : 0).reduce((a,b)=>a+b,0);
+  const emgYTD = MONTHS.map((_,i) => ACTIVE_MONTHS[i] ? emgSubtotal(i, CURR) : 0).reduce((a,b)=>a+b,0);
+  const prevFull = MONTHS.map((_,i) => monthTotal(i, PREV)).reduce((a,b)=>a+b,0);
+
+  const cards = [
+    { label: 'YTD Total', value: ytdC, compare: ytdP_same, note: 'vs same period prev yr', higherBad: true },
+    { label: MONTH_LABELS[mi] + ' Total', value: currM, compare: prevM, note: 'vs ' + MONTH_LABELS_PREV[mi], higherBad: true },
+    { label: 'YTD Standard', value: stdYTD, compare: null, note: 'Incidents' },
+    { label: 'YTD Emergency', value: emgYTD, compare: null, note: 'Emergency related' },
+    { label: 'Prev Year Total', value: prevFull, compare: null, note: 'FY 2024/25 full year' },
+  ];
+
+  document.getElementById('kpiGrid').innerHTML = cards.map(c => {
+    let changeHtml = '';
+    if (c.compare !== null) {
+      const diff = c.value - c.compare;
+      const pct = c.compare > 0 ? Math.round(Math.abs(diff)/c.compare*100) : 0;
+      const cls = diff === 0 ? 'neutral' : (c.higherBad ? (diff > 0 ? 'up' : 'down') : (diff > 0 ? 'up-good' : 'up'));
+      const arrow = diff === 0 ? '—' : (diff > 0 ? '▲' : '▼');
+      changeHtml = `<div class="stat-change ${cls}">${arrow} ${Math.abs(diff)} (${pct}%)</div>`;
+    }
+    return `<div class="stat-card">
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-value">${c.value}</div>
+      ${changeHtml}
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">${c.note}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderOverviewPills() {
+  const container = document.getElementById('overviewPills');
+  container.innerHTML = MONTHS.map((m, i) => {
+    const active = ACTIVE_MONTHS[i];
+    const isCurr = i === LAST_ACTIVE_MI;
+    return `<div class="month-pill ${isCurr ? 'active' : ''} ${!active ? 'no-data' : ''}"
+      onclick="if(${active}){selectMonthFromOverview(${i})}">${MONTH_LABELS[i]}</div>`;
+  }).join('');
+}
+
+function selectMonthFromOverview(mi) {
+  document.querySelectorAll('.nav-tab')[1].click();
+  setTimeout(() => {
+    document.getElementById('monthSelect').value = mi;
+    renderMonthView(mi);
+  }, 50);
+}
+
+let barChartInst = null, pieChartInst = null;
+
+function renderBarChart() {
+  const ctx = document.getElementById('barChart').getContext('2d');
+  if (barChartInst) barChartInst.destroy();
+  const currTotals = MONTHS.map((_, i) => monthTotal(i, CURR));
+  const prevTotals = MONTHS.map((_, i) => monthTotal(i, PREV));
+  barChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: MONTH_SHORT,
+      datasets: [
+        { label: 'FY 2025/26', data: currTotals, backgroundColor: '#3b82f6', borderRadius: 4, borderSkipped: false },
+        { label: 'FY 2024/25', data: prevTotals, backgroundColor: '#e2e8f0', borderRadius: 4, borderSkipped: false },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { font: { family: 'Inter', size: 12 }, color: '#475569', boxWidth: 12, padding: 16 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8' }, border: { display: false } },
+        y: { grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8' }, border: { display: false } }
+      }
+    }
+  });
+}
+
+function renderPieChart() {
+  const ctx = document.getElementById('pieChart').getContext('2d');
+  if (pieChartInst) pieChartInst.destroy();
+  // Top categories by YTD
+  const ytdBycat = ALL_CATS.map(c => ({
+    name: c,
+    val: MONTHS.reduce((s,_,i) => ACTIVE_MONTHS[i] ? s + (CURR[c]?.[i] || 0) : s, 0)
+  })).filter(x => x.val > 0).sort((a,b) => b.val - a.val);
+  const top = ytdBycat.slice(0, 7);
+  const other = ytdBycat.slice(7).reduce((s,x) => s + x.val, 0);
+  const labels = [...top.map(x => x.name), other > 0 ? 'Other' : null].filter(Boolean);
+  const vals = [...top.map(x => x.val), other > 0 ? other : null].filter(v => v !== null);
+  const colors = ['#3b82f6','#f59e0b','#ef4444','#10b981','#8b5cf6','#f97316','#06b6d4','#94a3b8'];
+  pieChartInst = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { font: { family: 'Inter', size: 11 }, color: '#475569', boxWidth: 12, padding: 8 } }
+      },
+      cutout: '58%'
+    }
+  });
+}
+
+function renderYTDTable() {
+  const activeCount = ACTIVE_MONTHS.filter(Boolean).length;
+  let html = `<thead><tr>
+    <th style="width:220px">Category</th>
+    <th>2025/26 YTD</th>
+    <th>2024/25 YTD</th>
+    <th>Diff</th>
+    <th>Change</th>
+  </tr></thead><tbody>`;
+
+  const renderSection = (cats, label) => {
+    html += `<tr class="section-header"><td colspan="5">${label}</td></tr>`;
+    cats.forEach(cat => {
+      const c = MONTHS.reduce((s,_,i) => ACTIVE_MONTHS[i] ? s+(CURR[cat]?.[i]||0):s, 0);
+      const p = MONTHS.reduce((s,_,i) => ACTIVE_MONTHS[i] ? s+(PREV[cat]?.[i]||0):s, 0);
+      const diff = c - p;
+      const pct = p > 0 ? Math.round(Math.abs(diff)/p*100) : (c > 0 ? 100 : 0);
+      const diffCls = diff > 0 ? 'diff-up' : diff < 0 ? 'diff-down' : 'diff-zero';
+      const sign = diff > 0 ? '+' : '';
+      const badge = diff === 0
+        ? '<span class="cmp-badge cmp-zero">—</span>'
+        : diff > 0
+          ? `<span class="cmp-badge cmp-up">▲ ${pct}%</span>`
+          : `<span class="cmp-badge cmp-down">▼ ${pct}%</span>`;
+      html += `<tr>
+        <td>${cat}</td>
+        <td class="${c===0?'zero':'highlight'}">${c}</td>
+        <td class="${p===0?'zero':''}">${p}</td>
+        <td class="${diffCls}">${sign}${diff}</td>
+        <td>${badge}</td>
+      </tr>`;
+    });
+    // Subtotal
+    const sC = cats.reduce((s,c) => s + MONTHS.reduce((ss,_,i)=>ACTIVE_MONTHS[i]?ss+(CURR[c]?.[i]||0):ss,0),0);
+    const sP = cats.reduce((s,c) => s + MONTHS.reduce((ss,_,i)=>ACTIVE_MONTHS[i]?ss+(PREV[c]?.[i]||0):ss,0),0);
+    const sD = sC - sP;
+    html += `<tr class="subtotal-row"><td>Subtotal</td><td>${sC}</td><td>${sP}</td><td class="${sD>0?'diff-up':sD<0?'diff-down':'diff-zero'}">${sD>0?'+':''}${sD}</td><td></td></tr>`;
+  };
+
+  renderSection(STD_CATS, 'STANDARD INCIDENTS');
+  renderSection(EMG_CATS, 'EMERGENCY RELATED');
+
+  const gC = MONTHS.reduce((s,_,i)=>ACTIVE_MONTHS[i]?s+monthTotal(i,CURR):s,0);
+  const gP = MONTHS.reduce((s,_,i)=>ACTIVE_MONTHS[i]?s+monthTotal(i,PREV):s,0);
+  const gD = gC - gP;
+  html += `<tr class="grand-total"><td>GRAND TOTAL</td><td>${gC}</td><td>${gP}</td><td>${gD>0?'+':''}${gD}</td><td></td></tr>`;
+  html += '</tbody>';
+  document.getElementById('ytdTable').innerHTML = html;
+}
+
+// ── MONTH VIEW ────────────────────────────────────────────────
+let monthBarInst = null, monthPieInst = null;
+
+function renderMonthView(mi) {
+  // Populate select
+  const sel = document.getElementById('monthSelect');
+  if (sel.options.length === 0) {
+    MONTHS.forEach((_, i) => {
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = MONTH_LABELS[i] + (ACTIVE_MONTHS[i] ? '' : ' (no data)');
+      sel.appendChild(opt);
+    });
+  }
+  sel.value = mi;
+
+  const mn = MONTH_LABELS[mi];
+  const mnP = MONTH_LABELS_PREV[mi];
+  document.getElementById('monthViewTitle').textContent = 'Monthly Report — ' + mn;
+  document.getElementById('monthTabLabel').textContent = mn;
+  document.getElementById('monthChartTitle').textContent = 'Category Breakdown — ' + mn + ' vs ' + mnP;
+  document.getElementById('monthTableTitle').textContent = 'Incident Detail — ' + mn + ' vs ' + mnP;
+
+  // KPIs
+  const cTotal = monthTotal(mi, CURR);
+  const pTotal = monthTotal(mi, PREV);
+  const cStd = stdSubtotal(mi, CURR);
+  const cEmg = emgSubtotal(mi, CURR);
+  const pStd = stdSubtotal(mi, PREV);
+  const pEmg = emgSubtotal(mi, PREV);
+  const diff = cTotal - pTotal;
+  const pct = pTotal > 0 ? Math.round(Math.abs(diff)/pTotal*100) : 0;
+
+  const kpis = [
+    { label: mn + ' Total', value: cTotal, compare: pTotal, higherBad: true },
+    { label: 'Standard Incidents', value: cStd, compare: pStd, higherBad: true },
+    { label: 'Emergency Related', value: cEmg, compare: pEmg, higherBad: true },
+    { label: 'vs ' + mnP, value: (diff > 0 ? '+' : '') + diff, raw: true, note: diff===0?'No change':diff>0?'More than prev year':'Fewer than prev year', cls: diff===0?'neutral':diff>0?'red':'green' },
+  ];
+
+  document.getElementById('monthKpiGrid').innerHTML = kpis.map(k => {
+    let changeHtml = '';
+    if (!k.raw && k.compare !== null) {
+      const d = k.value - k.compare;
+      const p2 = k.compare > 0 ? Math.round(Math.abs(d)/k.compare*100) : 0;
+      const cls2 = d===0?'neutral': k.higherBad?(d>0?'up':'down'):(d>0?'up-good':'up');
+      const arrow = d===0?'—':(d>0?'▲':'▼');
+      changeHtml = `<div class="stat-change ${cls2}">${arrow} ${Math.abs(d)} (${p2}%)</div>`;
+    }
+    const valStyle = k.cls === 'red' ? 'color:var(--danger)' : k.cls === 'green' ? 'color:var(--success)' : '';
+    return `<div class="stat-card">
+      <div class="stat-label">${k.label}</div>
+      <div class="stat-value" style="${valStyle}">${k.value}</div>
+      ${changeHtml}
+      ${k.note ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">${k.note}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Charts
+  const activeCats = ALL_CATS.filter(c => (CURR[c]?.[mi]||0) > 0 || (PREV[c]?.[mi]||0) > 0);
+  const top = activeCats.slice(0, 12);
+
+  const ctx1 = document.getElementById('monthBarChart').getContext('2d');
+  if (monthBarInst) monthBarInst.destroy();
+  monthBarInst = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: top.map(c => c.length > 22 ? c.slice(0,20)+'…' : c),
+      datasets: [
+        { label: mn, data: top.map(c => CURR[c]?.[mi]||0), backgroundColor: '#3b82f6', borderRadius: 4, borderSkipped: false },
+        { label: mnP, data: top.map(c => PREV[c]?.[mi]||0), backgroundColor: '#e2e8f0', borderRadius: 4, borderSkipped: false },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { position: 'top', labels: { font: { family: 'Inter', size: 12 }, color: '#475569', boxWidth: 12 } } },
+      scales: {
+        x: { grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8' }, border: { display: false } },
+        y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#475569' }, border: { display: false } }
+      }
+    }
+  });
+
+  const ctx2 = document.getElementById('monthPieChart').getContext('2d');
+  if (monthPieInst) monthPieInst.destroy();
+  const pieData = activeCats.filter(c => (CURR[c]?.[mi]||0) > 0);
+  const colors = ['#3b82f6','#f59e0b','#ef4444','#10b981','#8b5cf6','#f97316','#06b6d4','#94a3b8','#ec4899','#84cc16','#14b8a6','#f43f5e'];
+  monthPieInst = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: pieData.map(c => c.length > 25 ? c.slice(0,23)+'…' : c),
+      datasets: [{ data: pieData.map(c => CURR[c]?.[mi]||0), backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right', labels: { font: { family: 'Inter', size: 11 }, color: '#475569', boxWidth: 12, padding: 8 } } },
+      cutout: '55%'
+    }
+  });
+
+  // Detail table
+  let thtml = `<thead><tr>
+    <th>Category</th>
+    <th>${mn}</th>
+    <th>${mnP}</th>
+    <th>Diff</th>
+  </tr></thead><tbody>`;
+
+  const renderSect = (cats, lbl) => {
+    thtml += `<tr class="section-header"><td colspan="4">${lbl}</td></tr>`;
+    cats.forEach(cat => {
+      const c = CURR[cat]?.[mi] || 0;
+      const p = PREV[cat]?.[mi] || 0;
+      const d = c - p;
+      const sign = d > 0 ? '+' : '';
+      const dcls = d > 0 ? 'diff-up' : d < 0 ? 'diff-down' : 'diff-zero';
+      thtml += `<tr>
+        <td>${cat}</td>
+        <td class="${c===0?'zero':'highlight'}">${c}</td>
+        <td class="${p===0?'zero':''}">${p}</td>
+        <td class="${dcls}">${sign}${d}</td>
+      </tr>`;
+    });
+    const sC = cats.reduce((s,c)=>s+(CURR[c]?.[mi]||0),0);
+    const sP = cats.reduce((s,c)=>s+(PREV[c]?.[mi]||0),0);
+    const sD = sC-sP;
+    thtml += `<tr class="subtotal-row"><td>Subtotal</td><td>${sC}</td><td>${sP}</td><td class="${sD>0?'diff-up':sD<0?'diff-down':'diff-zero'}">${sD>0?'+':''}${sD}</td></tr>`;
+  };
+
+  renderSect(STD_CATS, 'STANDARD INCIDENTS');
+  renderSect(EMG_CATS, 'EMERGENCY RELATED');
+  thtml += `<tr class="grand-total"><td>GRAND TOTAL</td><td>${cTotal}</td><td>${pTotal}</td><td>${diff>0?'+':''}${diff}</td></tr>`;
+  thtml += '</tbody>';
+  document.getElementById('monthDetailTable').innerHTML = thtml;
+}
+
+// ── FULL TABLE ────────────────────────────────────────────────
+function renderFullTable() {
+  let html = `<thead>
+    <tr>
+      <th rowspan="2" style="width:220px;vertical-align:bottom">Category</th>
+      ${MONTH_SHORT.map((m,i) => `<th colspan="2" style="text-align:center;border-left:2px solid var(--border2)">${m}</th>`).join('')}
+      <th colspan="2" style="text-align:center;border-left:2px solid var(--border2);background:var(--accent-light);color:var(--accent)">YTD</th>
+    </tr>
+    <tr>
+      ${MONTHS.map((_, i) => `
+        <th class="${ACTIVE_MONTHS[i]?'active-month':''}" style="border-left:2px solid var(--border2)">25/26</th>
+        <th>24/25</th>
+      `).join('')}
+      <th style="border-left:2px solid var(--border2);background:var(--accent-light);color:var(--accent)">25/26</th>
+      <th style="background:var(--accent-light);color:var(--text3)">24/25</th>
+    </tr>
+  </thead><tbody>`;
+
+  const renderFull = (cats, lbl) => {
+    html += `<tr class="section-header"><td colspan="${2+MONTHS.length*2+2}">${lbl}</td></tr>`;
+    cats.forEach(cat => {
+      const ytdC = MONTHS.reduce((s,_,i)=>ACTIVE_MONTHS[i]?s+(CURR[cat]?.[i]||0):s,0);
+      const ytdP = MONTHS.reduce((s,_,i)=>ACTIVE_MONTHS[i]?s+(PREV[cat]?.[i]||0):s,0);
+      html += `<tr><td>${cat}</td>${MONTHS.map((_,i)=>{
+        const c=CURR[cat]?.[i]||0, p=PREV[cat]?.[i]||0;
+        return `<td class="${ACTIVE_MONTHS[i]?'curr-month':''} ${c===0?'zero':''}" style="border-left:2px solid var(--border2)">${c||'—'}</td><td class="${p===0?'zero':''}">${p||'—'}</td>`;
+      }).join('')}<td class="curr-month" style="border-left:2px solid var(--border2);font-weight:600">${ytdC}</td><td class="${ytdP===0?'zero':''}">${ytdP}</td></tr>`;
+    });
+    const sC = cats.reduce((s,c)=>s+MONTHS.reduce((ss,_,i)=>ACTIVE_MONTHS[i]?ss+(CURR[c]?.[i]||0):ss,0),0);
+    const sP = cats.reduce((s,c)=>s+MONTHS.reduce((ss,_,i)=>ACTIVE_MONTHS[i]?ss+(PREV[c]?.[i]||0):ss,0),0);
+    html += `<tr class="subtotal-row"><td>Subtotal</td>${MONTHS.map((_,i)=>{
+      const c=STD_CATS.concat(EMG_CATS).filter(x=>cats.includes(x)).reduce((s,cat2)=>s+(CURR[cat2]?.[i]||0),0);
+      const p=STD_CATS.concat(EMG_CATS).filter(x=>cats.includes(x)).reduce((s,cat2)=>s+(PREV[cat2]?.[i]||0),0);
+      return `<td style="border-left:2px solid var(--border2)">${c||'—'}</td><td>${p||'—'}</td>`;
+    }).join('')}<td style="border-left:2px solid var(--border2)">${sC}</td><td>${sP}</td></tr>`;
+  };
+
+  renderFull(STD_CATS, 'STANDARD INCIDENTS');
+  renderFull(EMG_CATS, 'EMERGENCY RELATED');
+
+  const grandC = MONTHS.map((_,i)=>monthTotal(i,CURR));
+  const grandP = MONTHS.map((_,i)=>monthTotal(i,PREV));
+  const ytdGC = grandC.reduce((s,v,i)=>ACTIVE_MONTHS[i]?s+v:s,0);
+  const ytdGP = grandP.reduce((s,v,i)=>ACTIVE_MONTHS[i]?s+v:s,0);
+  html += `<tr class="grand-total"><td>GRAND TOTAL</td>${MONTHS.map((_,i)=>`<td style="border-left:2px solid rgba(255,255,255,0.2)">${grandC[i]||'—'}</td><td style="opacity:0.7">${grandP[i]||'—'}</td>`).join('')}<td style="border-left:2px solid rgba(255,255,255,0.2)">${ytdGC}</td><td style="opacity:0.7">${ytdGP}</td></tr>`;
+  html += '</tbody>';
+  document.getElementById('fullTable').innerHTML = html;
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderOverview();
+</script>
+</body>
+</html>
