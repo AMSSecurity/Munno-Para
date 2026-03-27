@@ -774,7 +774,26 @@
             <div id="note-success" class="alert alert-success"></div>
             <div id="note-error" class="alert alert-error"></div>
             <div class="form-group"><label>Note *</label><textarea id="n-body" placeholder="Describe what happened, any incidents, observations, handover information..."></textarea></div>
-            <div class="form-group"><label>Reporting Officer *</label><input type="text" id="n-officer" placeholder="Full name of officer posting this note"></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Role *</label>
+                <select id="n-role">
+                  <option value="">— Select —</option>
+                  <option>Security</option>
+                  <option>Centre Management</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Reporting Officer *</label>
+                <input type="text" id="n-officer" placeholder="Full name">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Attachment (optional)</label>
+              <input type="file" id="n-attachment" style="padding:8px 0; font-size:13px; color:var(--text-secondary);">
+              <small style="font-size:11px; color:var(--text-muted);">Photo, PDF or document — max 10MB</small>
+            </div>
             <hr class="form-divider">
             <div class="form-actions">
               <button class="btn-ghost" onclick="clearNoteForm()">Clear</button>
@@ -890,8 +909,9 @@
       <!-- ── MONTHLY REPORT SUB-TAB ── -->
       <div id="sub-content-report" class="sub-tab-content">
         <iframe
-          src="MPSC_Monthly_Report.html"
+          src=""
           id="report-frame"
+          data-src="MPSC_Monthly_Report.html"
           style="width:100%; height:calc(100vh - 130px); border:none; display:block;"
           allowfullscreen>
         </iframe>
@@ -1543,16 +1563,20 @@
       const initials = (n.officer||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
       const isAcked = !!n.ack_by;
       const ackLabel = isAcked ? `Acknowledged — ${esc(n.ack_by)} · ${esc(n.ack_at||'')}` : 'Tap to acknowledge';
+      const roleBadge = n.role ? `<span style="font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;background:${n.role==='Security'?'#EFF6FF':n.role==='Centre Management'?'#F0FDF4':'#F8FAFC'};color:${n.role==='Security'?'#1E40AF':n.role==='Centre Management'?'#166534':'#64748B'};border:1px solid ${n.role==='Security'?'#BFDBFE':n.role==='Centre Management'?'#BBF7D0':'#E2E8F0'}">${esc(n.role)}</span>` : '';
+      const noteAttach = n.attach_url ? `<a href="${esc(n.attach_url)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--navy);text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:5px 10px;margin-top:4px;">📎 ${esc(n.attach_name||'Attachment')}</a>` : '';
 
       // Action section
       let actionHtml = '';
       if (n.action_by) {
+        const actAttach = n.action_attach_url ? `<a href="${esc(n.action_attach_url)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--navy);text-decoration:none;background:var(--white);border:1px solid #BBF7D0;border-radius:5px;padding:4px 10px;margin-top:4px;">📎 ${esc(n.action_attach_name||'Attachment')}</a>` : '';
         actionHtml = `<div class="note-action-section">
           <div class="note-action-label">✓ Action Taken</div>
           <div class="note-action-done">
             <span class="act-by">${esc(n.action_by)}</span>
             <span class="act-time">${esc(n.action_at||'')}</span>
             ${n.action_response ? `<div class="act-response">${esc(n.action_response)}</div>` : ''}
+            ${actAttach}
           </div>
         </div>`;
       } else {
@@ -1563,6 +1587,10 @@
           </div>
           <div id="action-form-${n.id}" class="note-action-form" style="display:none">
             <textarea id="action-resp-${n.id}" placeholder="Describe what was done, who was contacted, outcome..."></textarea>
+            <div class="form-group" style="margin-top:4px;">
+              <label style="font-size:11px;color:var(--text-muted);">Attachment (optional)</label>
+              <input type="file" id="action-attach-${n.id}" style="font-size:12px;color:var(--text-secondary);padding:4px 0;">
+            </div>
             <div class="note-action-form-row">
               <span style="font-size:11px;color:var(--text-muted)">Logged as: <strong>${auth.currentUser?.email?.split('@')[0]||'you'}</strong></span>
               <div style="display:flex;gap:8px">
@@ -1579,7 +1607,10 @@
           <div class="note-meta">
             <div class="note-avatar ${isAcked ? '' : 'unread'}">${initials}</div>
             <div>
-              <div class="note-author">${esc(n.officer||'Unknown')}</div>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span class="note-author">${esc(n.officer||'Unknown')}</span>
+                ${roleBadge}
+              </div>
               <div class="note-time">${date}</div>
             </div>
           </div>
@@ -1589,6 +1620,7 @@
           </div>
         </div>
         <div class="note-body">${esc(n.body||'')}</div>
+        ${noteAttach}
         <div class="note-ack-row">
           <div class="ack-checkbox ${isAcked ? 'ticked' : ''}" onclick="${isAcked ? '' : `acknowledgeNote('${n.id}')`}" title="${isAcked ? 'Acknowledged' : 'Tap to acknowledge'}">
             <svg viewBox="0 0 12 12"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>
@@ -1628,26 +1660,55 @@
     if (!response) { alert('Please describe the action taken before saving.'); return; }
     const user = auth.currentUser;
     const name = user?.email?.split('@')[0] || 'Unknown';
+    const btn = document.querySelector(`#action-form-${id} .btn-action`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
     try {
+      let attachUrl = null, attachName = null;
+      const attachFile = document.getElementById('action-attach-' + id)?.files[0];
+      if (attachFile) {
+        const attachPath = 'note_attachments/' + Date.now() + '_' + attachFile.name;
+        const attachRef = ref(storage, attachPath);
+        const snap = await uploadBytesResumable(attachRef, attachFile);
+        attachUrl = await getDownloadURL(snap.ref);
+        attachName = attachFile.name;
+      }
       await updateDoc(doc(db,'shift_notes',id), {
         action_by: name,
         action_at: new Date().toLocaleString('en-AU',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
-        action_response: response
+        action_response: response,
+        action_attach_url: attachUrl,
+        action_attach_name: attachName
       });
       await loadNotes();
     } catch(e) { alert('Failed to save action: ' + e.message); }
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Response'; }
   };
 
   window.submitNote = async function() {
     const body = document.getElementById('n-body').value.trim();
     const officer = document.getElementById('n-officer').value.trim();
+    const role = document.getElementById('n-role').value;
     hideAlerts('note');
-    if (!body || !officer) { showAlert('note-error','⚠ Please fill in the Note and Reporting Officer fields.'); return; }
+    if (!body || !officer || !role) { showAlert('note-error','⚠ Please fill in the Note, Role and Officer Name.'); return; }
     const btn = document.getElementById('note-submit-btn');
     btn.disabled = true; btn.textContent = 'Posting...';
     try {
+      // Upload attachment if selected
+      let attachUrl = null, attachName = null;
+      const attachFile = document.getElementById('n-attachment').files[0];
+      if (attachFile) {
+        if (attachFile.size > 10 * 1024 * 1024) { showAlert('note-error','⚠ Attachment must be under 10MB.'); btn.disabled=false; btn.textContent='Post Note'; return; }
+        const attachPath = 'note_attachments/' + Date.now() + '_' + attachFile.name;
+        const attachRef = ref(storage, attachPath);
+        btn.textContent = 'Uploading...';
+        const uploadSnap = await uploadBytesResumable(attachRef, attachFile);
+        attachUrl = await getDownloadURL(uploadSnap.ref);
+        attachName = attachFile.name;
+      }
       await addDoc(collection(db,'shift_notes'), {
-        body, officer,
+        body, officer, role,
+        attach_url: attachUrl,
+        attach_name: attachName,
         created_at: serverTimestamp(),
         created_by: auth.currentUser?.email||null
       });
@@ -1667,6 +1728,8 @@
   window.clearNoteForm = function() {
     document.getElementById('n-body').value = '';
     document.getElementById('n-officer').value = '';
+    document.getElementById('n-role').value = '';
+    document.getElementById('n-attachment').value = '';
     hideAlerts('note');
   };
 
@@ -2013,6 +2076,20 @@
   // MONTHLY REPORT — loaded via iframe (MPSC_Monthly_Report.html)
   // Both files must be in the same folder as this portal file
   // ══════════════════════════════
+
+  // Sub-tab switcher with lazy-load for report iframe
+  window.switchSubTab = function(tab) {
+    ['log','report'].forEach(t => {
+      document.getElementById('sub-content-' + t).classList.toggle('active', t === tab);
+      document.getElementById('sub-tab-' + t).classList.toggle('active', t === tab);
+    });
+    if (tab === 'report') {
+      const frame = document.getElementById('report-frame');
+      if (!frame.src || frame.src === window.location.href || frame.src === '') {
+        frame.src = frame.dataset.src;
+      }
+    }
+  };
 
   // Merge into the main switchTab
   window.switchTab = function(tab) {
