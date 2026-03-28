@@ -1164,6 +1164,7 @@
       loadNotes();
       loadDocs();
       startPolling();
+      requestNotificationPermission();
     } else {
       document.getElementById('login-screen').style.display = 'flex';
       document.getElementById('app').style.display = 'none';
@@ -2139,6 +2140,40 @@
   let pollInterval = null;
   let toastTimeout = null;
 
+  // Request browser notification permission after login
+  function requestNotificationPermission() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      setTimeout(() => {
+        Notification.requestPermission();
+      }, 3000); // ask 3s after login so it feels natural
+    }
+  }
+
+  // Send a native browser/phone notification
+  function sendPushNotification(title, body) {
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'granted') return;
+    try {
+      const n = new Notification(title, {
+        body: body,
+        icon: 'https://amssecurity.github.io/Munno-Para/favicon.ico',
+        badge: 'https://amssecurity.github.io/Munno-Para/favicon.ico',
+        tag: 'shift-note', // replaces previous notification rather than stacking
+        requireInteraction: false,
+        silent: false
+      });
+      // Clicking the notification focuses the portal tab
+      n.onclick = function() {
+        window.focus();
+        n.close();
+        switchTab('notes');
+      };
+      // Auto-close after 8 seconds
+      setTimeout(() => n.close(), 8000);
+    } catch(e) { /* Notifications blocked */ }
+  }
+
   // Soft chime using Web Audio API — no external files needed
   function playChime() {
     try {
@@ -2217,6 +2252,7 @@
           const officer = latest.officer || 'Unknown officer';
           const preview = (latest.body || '').substring(0, 60) + ((latest.body||'').length > 60 ? '...' : '');
           showToast(`New shift note — ${officer}`, preview);
+          sendPushNotification(`📋 New Shift Note — ${officer}`, preview);
           updateBadge();
         } else {
           // On notes tab — just silently refresh
