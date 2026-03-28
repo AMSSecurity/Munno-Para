@@ -359,6 +359,7 @@ const ITYPES = ['Sign On','Sign Off','Other','Alarm Activations','Anti Social Be
   'Unsecured Doors/Shops'];
 
 const SK = 'mpsc_url3';
+const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbyrXkcclc_lgeuy_eQAK4z4ipHksZu0ZJOFOG8ismT0ECqTIBGlZKYxCmzb2-6IzxKQ/exec';
 let API='', all=[], filt=[], sheets=[], editE=null, sk='datetime', sd=-1, pg=1, PP=100, firstLoad=true, refreshTimer=null, REFRESH_SEC=30;
 
 // ── INIT ──────────────────────────────────────────────────────
@@ -366,10 +367,25 @@ window.onload = function() {
   // Populate incident types
   var inc = document.getElementById('fIn');
   ITYPES.forEach(function(t){ var o=document.createElement('option'); o.value=t; o.textContent=t; inc.appendChild(o); });
-  // Restore saved URL if any — just pre-fill, don't auto-connect
-  var saved = localStorage.getItem(SK);
-  if (saved) document.getElementById('apiUrl').value = saved;
   document.addEventListener('keydown', function(e){ if(e.key==='Escape'){hid('Md');hid('Mf');} });
+
+  // Auto-connect using hardcoded URL
+  API = HARDCODED_URL;
+  document.getElementById('apiUrl').value = API;
+  showMsg('Connecting to Google Sheets…', 'info');
+  jsonp({action:'ping'}, 10000).then(function(res) {
+    if (res && res.success) {
+      localStorage.setItem(SK, API);
+      showMsg('Connected! Loading data…', 'ok');
+      setTimeout(function(){ showApp(); }, 400);
+    } else {
+      showMsg('Connected but got unexpected response. Try clicking Connect manually.', 'err');
+    }
+  }).catch(function(err) {
+    showMsg('Auto-connect failed: ' + err.message + '. Paste your URL and click Connect.', 'err');
+    // Still show the setup screen so they can connect manually
+    document.getElementById('P0').style.display = 'flex';
+  });
 };
 
 // ── JSONP ─────────────────────────────────────────────────────
@@ -479,6 +495,13 @@ function loadData() {
   Promise.all([jsonp({action:'getEntries'}), jsonp({action:'getSheets'})]).then(function(results) {
     hideSpin();
     var er = results[0], sr = results[1];
+
+    // Debug — show raw response shape for 8 seconds
+    var debugMsg = 'Response: success=' + er.success +
+      ' | entries=' + (er.data && er.data.entries ? er.data.entries.length : 'none') +
+      ' | sheets=' + (sr.data && sr.data.sheets ? sr.data.sheets.join(', ') : 'none');
+    showDebug(debugMsg);
+
     if (!er.success) { toast('Load error: '+(er.error||'unknown'), 'err'); return; }
     all = er.data.entries || [];
     sheets = (sr.success ? sr.data.sheets : []) || [];
@@ -488,6 +511,18 @@ function loadData() {
     applyF();
     firstLoad = false;
   }).catch(function(e){ hideSpin(); toast('Load failed: '+e.message, 'err'); });
+}
+
+function showDebug(msg) {
+  var el = document.getElementById('debug-bar');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'debug-bar';
+    el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1d4ed8;color:#fff;font-size:11px;padding:5px 14px;font-family:monospace;word-break:break-all;';
+    document.body.appendChild(el);
+    setTimeout(function(){ if(el.parentNode) el.remove(); }, 12000);
+  }
+  el.textContent = msg;
 }
 
 function fillDrops() {
