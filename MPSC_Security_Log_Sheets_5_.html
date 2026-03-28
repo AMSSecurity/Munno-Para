@@ -373,7 +373,7 @@ window.onload = function() {
   API = HARDCODED_URL;
   document.getElementById('apiUrl').value = API;
   showMsg('Connecting to Google Sheets…', 'info');
-  jsonp({action:'ping'}, 10000).then(function(res) {
+  jsonp({action:'ping'}, 20000).then(function(res) {
     if (res && res.success) {
       localStorage.setItem(SK, API);
       showMsg('Connected! Loading data…', 'ok');
@@ -492,14 +492,26 @@ function updateRefreshUI() {
 // ── LOAD ─────────────────────────────────────────────────────
 function loadData() {
   showSpin('Loading from Google Sheets…');
-  Promise.all([jsonp({action:'getEntries'}), jsonp({action:'getSheets'})]).then(function(results) {
+
+  // On first load only fetch current month sheet for speed — user can clear filter for all
+  var monthNames = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+  var now = new Date();
+  var currentMonth = monthNames[now.getMonth()] + ' ' + String(now.getFullYear()).slice(2);
+  var entriesParams = firstLoad ? {action:'getEntries', month: currentMonth} : {action:'getEntries'};
+
+  Promise.all([
+    jsonp(entriesParams, 20000),
+    jsonp({action:'getSheets'}, 10000)
+  ]).then(function(results) {
     hideSpin();
     var er = results[0], sr = results[1];
 
-    // Debug — show raw response shape for 8 seconds
-    var debugMsg = 'Response: success=' + er.success +
+    // Debug bar — shows for 10 seconds
+    var debugMsg = 'success=' + er.success +
       ' | entries=' + (er.data && er.data.entries ? er.data.entries.length : 'none') +
-      ' | sheets=' + (sr.data && sr.data.sheets ? sr.data.sheets.join(', ') : 'none');
+      ' | sheets=' + (sr.data && sr.data.sheets ? sr.data.sheets.join(', ') : 'none') +
+      (er.error ? ' | ERROR: ' + er.error : '');
     showDebug(debugMsg);
 
     if (!er.success) { toast('Load error: '+(er.error||'unknown'), 'err'); return; }
@@ -510,7 +522,11 @@ function loadData() {
     fillSheetDrop();
     applyF();
     firstLoad = false;
-  }).catch(function(e){ hideSpin(); toast('Load failed: '+e.message, 'err'); });
+  }).catch(function(e){
+    hideSpin();
+    showDebug('FAILED: ' + e.message);
+    toast('Load failed: ' + e.message, 'err');
+  });
 }
 
 function showDebug(msg) {
