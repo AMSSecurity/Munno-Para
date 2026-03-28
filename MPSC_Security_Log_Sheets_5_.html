@@ -643,33 +643,36 @@ function applyF() {
 function parseDate(str) {
   if (!str) return 0;
   str = String(str).trim();
-  // Already ISO: 2026-03-27
+  // ISO datetime: 2026-03-01T08:00:00.000Z — just grab the date part
   var iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (iso) return parseInt(iso[1]+iso[2]+iso[3]);
-  // DD/MM/YYYY or DD-MM-YYYY
+  // DD/MM/YYYY
   var dmy = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
   if (dmy) return parseInt(dmy[3]+dmy[2].padStart(2,'0')+dmy[1].padStart(2,'0'));
-  // MM/DD/YYYY
-  var mdy = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-  if (mdy) {
-    var yr = mdy[3].length === 2 ? '20'+mdy[3] : mdy[3];
-    return parseInt(yr+mdy[1].padStart(2,'0')+mdy[2].padStart(2,'0'));
-  }
-  // Try native parse as last resort
+  // Try native parse
   var d = new Date(str);
   return isNaN(d) ? 0 : d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
 }
 
-// Parse time string HH:MM to a number for sorting
+// Parse time — handles both HH:mm and Google Sheets time serials (1899-12-30T08:30:00.000Z)
 function parseTime(str) {
   if (!str) return 0;
-  var parts = String(str).trim().split(':');
+  str = String(str).trim();
+  // Google Sheets time serial comes as ISO datetime starting with 1899
+  if (str.includes('T')) {
+    var t = str.match(/T(\d{2}):(\d{2})/);
+    if (t) return parseInt(t[1])*100 + parseInt(t[2]);
+  }
+  var parts = str.split(':');
   return parseInt(parts[0]||0)*100 + parseInt(parts[1]||0);
 }
 
 // Convert any date string to ISO yyyy-mm-dd for filter comparison
 function toISO(str) {
   if (!str) return '';
+  // Already ISO datetime — just take date portion
+  var iso = String(str).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return iso[1]+'-'+iso[2]+'-'+iso[3];
   var n = parseDate(str);
   if (!n) return '';
   var s = String(n);
