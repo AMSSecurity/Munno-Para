@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1d4ed8">
 <title>MPSC Security Log — Google Sheets</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
@@ -139,6 +142,64 @@ select.fi{appearance:none;cursor:pointer;background-image:url("data:image/svg+xm
 .tok .td{background:#22c55e;} .terr .td{background:#ef4444;}
 .empty{text-align:center;padding:56px 20px;color:var(--t3);}
 @media(max-width:680px){.fg{grid-template-columns:1fr;}}
+
+/* ── MOBILE ── */
+@media(max-width:640px){
+  /* Header */
+  .hdr{padding:8px 12px;height:auto;min-height:50px;flex-wrap:wrap;gap:6px;}
+  .hdr-logo{font-size:12px;}
+  .hdr-count{display:none;}
+  .hbtn{padding:6px 10px;font-size:12px;}
+  #refreshLbl{display:none;}
+
+  /* Setup card */
+  .setup{padding:12px;align-items:flex-start;padding-top:1.5rem;}
+  .card{padding:20px 16px;border-radius:10px;}
+  .card-title{font-size:16px;}
+  .card-sub{font-size:12px;}
+  .st{font-size:13px;}
+  .sd{font-size:12px;}
+  .connect-row{flex-direction:column;gap:8px;}
+  .connect-row .btn{width:100%;justify-content:center;}
+  input.url-f{font-size:16px;}
+
+  /* Toolbar — stack search full width then filters in row */
+  .bar{padding:8px 12px;gap:6px;flex-wrap:wrap;}
+  .srch{max-width:100%;min-width:0;flex:none;width:100%;}
+  .srch input{font-size:16px;}
+  select.sf{font-size:16px;padding:8px 28px 8px 8px;flex:1;min-width:0;}
+  input[type=date].sf{font-size:16px;flex:1;min-width:0;}
+  .fcnt{display:none;}
+
+  /* Table */
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{font-size:12px;min-width:680px;}
+  th{padding:8px 10px;font-size:10px;}
+  td{padding:8px 10px;}
+  td.mx{max-width:150px;}
+
+  /* Pagination */
+  .pgr{padding:8px 12px;flex-wrap:wrap;gap:6px;}
+  .pgr-i{font-size:11px;width:100%;}
+  .pb{padding:7px 10px;font-size:12px;}
+
+  /* Modal — slide up from bottom */
+  .ov{align-items:flex-end;padding:0;}
+  .modal{border-radius:14px 14px 0 0;max-height:90vh;max-width:100%;width:100%;}
+  .m-hd{padding:14px 16px;}
+  .m-bd{padding:14px 16px;}
+  .m-ft{padding:12px 16px;flex-direction:column-reverse;gap:8px;}
+  .m-ft .btn{width:100%;justify-content:center;}
+  .fg{grid-template-columns:1fr;gap:10px;}
+  .fi,select.fi,textarea.fi{font-size:16px;}
+
+  /* Badges */
+  .bdg{font-size:10px;padding:2px 6px;}
+
+  /* Buttons */
+  .btn{padding:9px 14px;font-size:13px;}
+  .btn-sm{padding:7px 12px;font-size:12px;}
+}
 </style>
 </head>
 <body>
@@ -186,6 +247,7 @@ select.fi{appearance:none;cursor:pointer;background-image:url("data:image/svg+xm
  <div class="hdr">
   <div class="hdr-logo">MPSC <span>/</span> Security Log</div>
   <div style="display:flex;align-items:center;gap:7px"><div class="dot"></div><span class="dot-lbl">Live &middot; Google Sheets</span></div>
+  <button onclick="openAdd()" style="margin-left:auto;margin-right:auto;background:#fff;color:#1d4ed8;border:none;padding:9px 24px;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.2px;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:all 0.15s;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#fff'">+ Add Entry</button>
   <div class="hdr-r">
    <span class="hdr-count" id="hdrCnt"></span>
    <span id="refreshLbl" style="font-size:11px;color:rgba(255,255,255,.55);font-family:var(--mono)"></span>
@@ -196,7 +258,6 @@ select.fi{appearance:none;cursor:pointer;background-image:url("data:image/svg+xm
     <option value="300">Every 5 min</option>
    </select>
    <button class="hbtn" onclick="loadData()">&#8635; Refresh</button>
-   <button class="hbtn hbtn-w" onclick="openAdd()">+ Add Entry</button>
    <button class="hbtn" onclick="doExport()">Export CSV</button>
    <button class="hbtn" onclick="goSetup()">Settings</button>
   </div>
@@ -441,6 +502,13 @@ function fillDrops() {
   var ty=[...new Set(all.map(function(e){return e.incident||'';}).filter(Boolean))].sort();
   var of=[...new Set(all.map(function(e){return e.officer||'';}).filter(Boolean))].sort();
   fillSel('qM', mn); fillSel('qT', ty); fillSel('qO', of);
+
+  // Pre-fill today's date so current day entries show first
+  var today = new Date().toISOString().slice(0,10);
+  var frEl = document.getElementById('qFr');
+  var toEl = document.getElementById('qTo');
+  if (firstLoad && frEl && !frEl.value) frEl.value = today;
+  if (firstLoad && toEl && !toEl.value) toEl.value = today;
 }
 
 function fillSel(id, vals) {

@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1d4ed8">
 <title>Munno Para SC — Monthly Security Report</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -283,19 +286,89 @@ table.report-table {
   body { background: white; }
 }
 
-/* ── RESPONSIVE ─────────────────────────── */
+/* ── RESPONSIVE — TABLET ─────────────────── */
 @media (max-width: 900px) {
   .chart-grid { grid-template-columns: 1fr; }
   .month-comparison { grid-template-columns: 1fr; }
   .main { padding: 16px; }
   .app-header { padding: 0 16px; }
   .nav-bar { padding: 0 16px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── RESPONSIVE — MOBILE ─────────────────── */
+@media (max-width: 640px) {
+  /* Header */
+  .app-header { height: auto; min-height: 52px; padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
+  .app-logo { font-size: 13px; }
+  .app-subtitle { font-size: 11px; }
+  .app-divider { display: none; }
+  .header-right { gap: 6px; margin-left: auto; }
+  .header-right .btn { padding: 7px 12px; font-size: 12px; }
+
+  /* Nav tabs — scrollable, no wrap */
+  .nav-bar { padding: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .nav-bar::-webkit-scrollbar { display: none; }
+  .nav-tab { padding: 12px 16px; font-size: 12px; flex-shrink: 0; }
+
+  /* Main */
+  .main { padding: 12px; }
+  .page-header { flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .page-title { font-size: 17px; }
+  .page-subtitle { font-size: 12px; }
+
+  /* KPI grid — 2 cols */
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .stat-card { padding: 14px 12px; border-radius: 8px; }
+  .stat-value { font-size: 26px; }
+  .stat-label { font-size: 11px; }
+  .stat-change { font-size: 11px; }
+
+  /* Charts */
+  .chart-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
+  .card { border-radius: 8px; }
+  .card-header { padding: 12px 14px; }
+  .card-title { font-size: 13px; }
+  .card-subtitle { font-size: 11px; }
+  .card-body { padding: 12px; }
+  .chart-wrap { height: 200px !important; }
+
+  /* Summary table cards */
+  .data-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .report-table { font-size: 12px; min-width: 460px; }
+  .report-table th { padding: 8px 10px; font-size: 10px; letter-spacing: 0.04em; }
+  .report-table td { padding: 7px 10px; }
+  .section-header td { font-size: 10px; padding: 6px 10px; }
+
+  /* Full table needs more width */
+  #view-table .report-table { min-width: 860px; }
+
+  /* Month selector */
+  #monthSelect { width: 100%; font-size: 16px; padding: 10px 12px; }
+
+  /* Buttons */
+  .btn { padding: 9px 14px; font-size: 13px; }
+  .btn-sm { padding: 7px 12px; font-size: 12px; }
+
+  /* FY switcher */
+  .fy-switcher { flex-wrap: wrap; gap: 4px; }
+  .fy-btn { padding: 6px 12px; font-size: 12px; }
+
+  /* Page header actions */
+  .no-print .btn { padding: 7px 12px; font-size: 12px; }
+}
+
+/* ── VERY SMALL (380px) ──────────────────── */
+@media (max-width: 380px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .stat-value { font-size: 22px; }
+  .nav-tab { padding: 11px 12px; font-size: 11px; }
+  .page-title { font-size: 15px; }
 }
 
 .tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 4px; }
 .tag-blue { background: var(--accent-light); color: var(--accent); font-weight: 600; }
 .tag-grey { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
-
 .fy-switcher { display: flex; align-items: center; gap: 6px; }
 .fy-btn { padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border2); background: var(--white); color: var(--text2); transition: all 0.15s; }
 .fy-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -312,10 +385,6 @@ table.report-table {
       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
       Print / PDF
     </button>
-    <a href="MPSC_Security_Log.html" class="btn btn-primary btn-sm no-print">
-      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Security Log
-    </a>
   </div>
 </div>
 
@@ -467,175 +536,34 @@ table.report-table {
 </div>
 
 <script>
-// ── LIVE DATA FROM GOOGLE APPS SCRIPT ─────────────────────────
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyrXkcclc_lgeuy_eQAK4z4ipHksZu0ZJOFOG8ismT0ECqTIBGlZKYxCmzb2-6IzxKQ/exec';
+// ── DATA ──────────────────────────────────────────────────────
+const DATA = {"months": ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"], "fy_curr": "2025/26", "fy_prev": "2024/25", "curr": {"Anti Social Behaviour": [8, 9, 11, 10, 21, 4, 1, 16, 8, 0, 0, 0], "Attempted/Suspected Theft": [2, 5, 2, 4, 8, 14, 0, 0, 1, 0, 0, 0], "Assault": [1, 1, 5, 0, 5, 0, 0, 0, 2, 0, 0, 0], "Assault on Security": [2, 2, 0, 0, 3, 0, 1, 3, 0, 0, 0, 0], "Break & Enter from a Retailer": [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0], "Break & Enter from a Vehicle": [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0], "Burgulary": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Drug Use/Needle Found": [2, 2, 0, 2, 0, 3, 0, 2, 0, 0, 0, 0], "General Theft": [6, 8, 3, 8, 7, 5, 1, 20, 7, 0, 0, 0], "General Security": [0, 0, 2, 0, 1, 1, 2, 6, 136, 0, 0, 0], "Intoxication": [1, 2, 0, 2, 5, 1, 1, 5, 0, 0, 0, 0], "Lost Child/Person": [3, 0, 1, 1, 0, 3, 0, 1, 1, 0, 0, 0], "Lost/Found Property": [34, 26, 37, 24, 11, 10, 2, 15, 16, 0, 0, 0], "Maintenance": [12, 7, 4, 5, 4, 10, 0, 16, 2, 0, 0, 0], "Malicious Damage/ Graffiti": [3, 1, 6, 4, 6, 2, 0, 2, 1, 0, 0, 0], "Motor Vehicle Accident & Damage": [0, 1, 0, 1, 2, 1, 0, 0, 0, 0, 0, 0], "Non Malicious Damage": [0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0], "Shop Disturbance": [8, 6, 9, 3, 12, 11, 0, 4, 0, 0, 0, 0], "Theft from a Customer": [0, 0, 2, 2, 0, 0, 0, 1, 0, 0, 0, 0], "Theft of a Vehicle/ Motor Bike": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Unsecured Doors/Shops": [3, 1, 1, 0, 2, 3, 0, 3, 0, 0, 0, 0], "Alarm Activations": [6, 11, 10, 8, 8, 5, 1, 22, 8, 0, 0, 0], "Fire/Fire Alarms": [3, 5, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0], "Bomb Threats": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0], "Gas Leaks": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Damaged Water Pipes/Water Leaks": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Power Outage": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Structural Collapses": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "First Aids & Related": [2, 5, 8, 6, 10, 9, 0, 10, 1, 0, 0, 0]}, "prev": {"Anti Social Behaviour": [10, 0, 17, 22, 18, 17, 16, 21, 20, 5, 17, 8], "Attempted/Suspected Theft": [9, 10, 6, 13, 6, 7, 3, 12, 1, 1, 8, 4], "Assault": [3, 1, 4, 6, 5, 3, 0, 5, 2, 3, 3, 3], "Assault on Security": [1, 0, 2, 2, 0, 0, 0, 1, 0, 0, 0, 1], "Break & Enter from a Retailer": [1, 0, 1, 0, 1, 0, 1, 0, 0, 2, 0, 0], "Break & Enter from a Vehicle": [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0], "Burgulary": [0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1], "Drug Use/Needle Found": [0, 0, 1, 1, 0, 2, 0, 0, 7, 1, 2, 0], "General Theft": [22, 7, 10, 11, 9, 11, 5, 5, 9, 7, 8, 3], "General Security": [19, 36, 24, 15, 14, 15, 2, 1, 0, 8, 0, 0], "Intoxication": [3, 0, 4, 5, 7, 5, 7, 3, 3, 1, 3, 0], "Lost Child/Person": [0, 1, 2, 3, 2, 3, 1, 1, 2, 1, 3, 2], "Lost/Found Property": [8, 8, 9, 7, 8, 8, 10, 21, 26, 13, 25, 17], "Maintenance": [21, 34, 9, 26, 14, 24, 8, 14, 15, 16, 7, 7], "Malicious Damage/ Graffiti": [5, 3, 14, 6, 12, 10, 8, 6, 8, 4, 4, 2], "Motor Vehicle Accident & Damage": [2, 0, 2, 1, 0, 1, 2, 1, 1, 1, 2, 7], "Non Malicious Damage": [0, 0, 4, 0, 5, 0, 2, 3, 1, 0, 1, 3], "Shop Disturbance": [12, 28, 16, 2, 11, 13, 8, 15, 5, 7, 3, 11], "Theft from a Customer": [1, 1, 0, 0, 1, 0, 0, 0, 0, 2, 3, 0], "Theft of a Vehicle/ Motor Bike": [1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0], "Unsecured Doors/Shops": [9, 0, 1, 0, 0, 1, 0, 7, 5, 2, 3, 1], "Alarm Activations": [4, 7, 3, 1, 7, 11, 6, 9, 11, 1, 5, 10], "Fire/Fire Alarms": [2, 5, 2, 2, 2, 0, 0, 0, 0, 0, 3, 0], "Bomb Threats": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "Gas Leaks": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], "Damaged Water Pipes/Water Leaks": [0, 0, 0, 4, 1, 2, 3, 1, 1, 0, 1, 0], "Power Outage": [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1], "Structural Collapses": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "First Aids & Related": [13, 9, 6, 11, 9, 7, 4, 9, 8, 7, 7, 3]}, "categories_standard": ["Anti Social Behaviour", "Attempted/Suspected Theft", "Assault", "Assault on Security", "Break & Enter from a Retailer", "Break & Enter from a Vehicle", "Burgulary", "Drug Use/Needle Found", "General Theft", "General Security", "Intoxication", "Lost Child/Person", "Lost/Found Property", "Maintenance", "Malicious Damage/ Graffiti", "Motor Vehicle Accident & Damage", "Non Malicious Damage", "Shop Disturbance", "Theft from a Customer", "Theft of a Vehicle/ Motor Bike", "Unsecured Doors/Shops"], "categories_emergency": ["Alarm Activations", "Fire/Fire Alarms", "Bomb Threats", "Gas Leaks", "Damaged Water Pipes/Water Leaks", "Power Outage", "Structural Collapses", "First Aids & Related"]};
 
-// Fallback data in case the sheet is unreachable
-const FALLBACK = {"months":["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun"],"fy_curr":"2025/26","fy_prev":"2024/25","curr":{},"prev":{},"categories_standard":["Anti Social Behaviour","Attempted/Suspected Theft","Assault","Assault on Security","Break & Enter from a Retailer","Break & Enter from a Vehicle","Burgulary","Drug Use/Needle Found","General Theft","General Security","Intoxication","Lost Child/Person","Lost/Found Property","Maintenance","Malicious Damage/ Graffiti","Motor Vehicle Accident & Damage","Non Malicious Damage","Shop Disturbance","Theft from a Customer","Theft of a Vehicle/ Motor Bike","Unsecured Doors/Shops"],"categories_emergency":["Alarm Activations","Fire/Fire Alarms","Bomb Threats","Gas Leaks","Damaged Water Pipes/Water Leaks","Power Outage","Structural Collapses","First Aids & Related"]};
+const MONTHS = DATA.months; // Jul Aug Sep Oct Nov Dec Jan Feb Mar Apr May Jun
+const CURR = DATA.curr;
+const PREV = DATA.prev;
+const STD_CATS = DATA.categories_standard;
+const EMG_CATS = DATA.categories_emergency;
+const ALL_CATS = [...STD_CATS, ...EMG_CATS];
 
-// Show loading state
-document.addEventListener('DOMContentLoaded', function() {
-  document.body.insertAdjacentHTML('afterbegin',
-    '<div id="load-overlay" style="position:fixed;inset:0;z-index:9999;background:#f4f6f9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">' +
-    '<div style="width:44px;height:44px;border:3px solid #e2e8f0;border-top-color:#1d4ed8;border-radius:50%;animation:spin 0.8s linear infinite"></div>' +
-    '<div style="font-size:14px;color:#475569;font-family:Inter,sans-serif">Loading live data from Google Sheets...</div>' +
-    '<style>@keyframes spin{to{transform:rotate(360deg)}}</style></div>'
-  );
-});
+// Month labels for display (financial year order)
+const MONTH_LABELS = ['Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26'];
+const MONTH_LABELS_PREV = ['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25'];
+const MONTH_SHORT = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
 
-// JSONP fetch from Apps Script
-function fetchSummary() {
-  return new Promise(function(resolve, reject) {
-    var cb = 'gasReportCb_' + Date.now();
-    var script = document.createElement('script');
-    var timer = setTimeout(function() {
-      cleanup(); reject(new Error('Timeout'));
-    }, 12000);
-    function cleanup() { clearTimeout(timer); script.remove(); delete window[cb]; }
-    window[cb] = function(res) { cleanup(); resolve(res); };
-    script.src = GAS_URL + '?action=getSummary&callback=' + cb;
-    script.onerror = function() { cleanup(); reject(new Error('Network error')); };
-    document.head.appendChild(script);
-  });
-}
-
-// Convert getSummary response to the DATA format the report expects
-function convertSummaryToData(res) {
-  // Handle both shapes:
-  // Shape A (from handleRequest wrapper): { success: true, data: { months, curr, prev, stdCats, emgCats } }
-  // Shape B (direct): { months, curr, prev, stdCats, emgCats }
-  var d = (res.data && res.data.months) ? res.data
-        : (res.months)                  ? res
-        : (res.data && res.data.data)   ? res.data.data  // double-wrapped
-        : null;
-
-  if (!d) {
-    console.error('getSummary: unexpected response shape', JSON.stringify(res).slice(0, 500));
-    showDebug('Unexpected response shape. Raw: ' + JSON.stringify(res).slice(0, 800));
-    return null;
-  }
-
-  var months  = d.months  || ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
-  var stdCats = d.stdCats || d.categories_standard || FALLBACK.categories_standard;
-  var emgCats = d.emgCats || d.categories_emergency || FALLBACK.categories_emergency;
-  var allCats = stdCats.concat(emgCats);
-
-  var curr = {}, prev = {};
-  allCats.forEach(function(cat) {
-    curr[cat] = (d.curr && d.curr[cat]) ? d.curr[cat] : new Array(12).fill(0);
-    prev[cat] = (d.prev && d.prev[cat]) ? d.prev[cat] : new Array(12).fill(0);
-  });
-
-  var currLabel = d.currYearLabel || d.fyLabel || '2025/26';
-  var prevLabel = d.prevYearLabel || d.fyPrev  || '2024/25';
-
-  // Build month display labels e.g. "Jul 25"
-  var parts = currLabel.replace(/20/g,'').split('/');  // ['25','26']
-  var cy1 = parts[0] || '25';
-  var cy2 = parts[1] || '26';
-  var pparts = prevLabel.replace(/20/g,'').split('/');
-  var py1 = pparts[0] || '24';
-  var py2 = pparts[1] || '25';
-
-  var mShort = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
-  var currLabels = mShort.map(function(m,i){ return m + ' ' + (i < 6 ? cy1 : cy2); });
-  var prevLabels = mShort.map(function(m,i){ return m + ' ' + (i < 6 ? py1 : py2); });
-
-  // Debug: show how many categories loaded
-  var catCount = Object.keys(d.curr || {}).length;
-  showDebug('✓ Loaded ' + catCount + ' categories from Google Sheets (' + currLabel + ')');
-
-  return {
-    months:               months,
-    fy_curr:              currLabel,
-    fy_prev:              prevLabel,
-    curr:                 curr,
-    prev:                 prev,
-    categories_standard:  stdCats,
-    categories_emergency: emgCats,
-    _monthLabels:         currLabels,
-    _monthLabelsPrev:     prevLabels
-  };
-}
-
-function showDebug(msg) {
-  // Show a small temporary debug bar at the top
-  var el = document.getElementById('debug-bar');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'debug-bar';
-    el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9998;background:#1d4ed8;color:#fff;font-size:12px;padding:6px 16px;font-family:monospace;';
-    document.body.prepend(el);
-    setTimeout(function(){ if(el.parentNode) el.remove(); }, 8000);
-  }
-  el.textContent = msg;
-}
-
-function initReport(DATA) {
-  // Remove loading overlay
-  var overlay = document.getElementById('load-overlay');
-  if (overlay) overlay.remove();
-
-  // Set up globals the rest of the script uses
-  window.MONTHS = DATA.months;
-  window.CURR = DATA.curr;
-  window.PREV = DATA.prev;
-  window.STD_CATS = DATA.categories_standard;
-  window.EMG_CATS = DATA.categories_emergency;
-  window.ALL_CATS = STD_CATS.concat(EMG_CATS);
-  window.MONTH_LABELS = DATA._monthLabels || ['Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26'];
-  window.MONTH_LABELS_PREV = DATA._monthLabelsPrev || ['Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25'];
-  window.MONTH_SHORT = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
-  window.ACTIVE_MONTHS = MONTHS.map(function(_,i){ return monthTotal(i,CURR)>0; });
-  window.LAST_ACTIVE_MI = ACTIVE_MONTHS.lastIndexOf(true);
-
-  // Kick off rendering
-  renderOverview();
-}
-
-function showError(msg) {
-  var overlay = document.getElementById('load-overlay');
-  if (overlay) overlay.innerHTML =
-    '<div style="text-align:center;font-family:Inter,sans-serif;padding:2rem;">' +
-    '<div style="font-size:2rem;margin-bottom:1rem;">⚠️</div>' +
-    '<div style="font-size:15px;color:#0f172a;font-weight:600;margin-bottom:8px;">Could not load live data</div>' +
-    '<div style="font-size:13px;color:#475569;margin-bottom:20px;">' + msg + '</div>' +
-    '<button onclick="useFallback()" style="padding:8px 20px;background:#1d4ed8;color:#fff;border:none;border-radius:7px;font-size:13px;cursor:pointer;">Use last saved data</button>' +
-    '</div>';
-}
-
-window.useFallback = function() {
-  initReport(FALLBACK);
-};
-
-// ── START: fetch live then init ────────────────────────────────
-fetchSummary()
-  .then(function(res) {
-    if (res && res.success === false) {
-      showError('Apps Script error: ' + (res.error || 'Unknown'));
-      return;
-    }
-    var converted = convertSummaryToData(res);
-    if (converted) {
-      initReport(converted);
-    } else {
-      showError('Could not parse the data returned by Apps Script. Check debug bar for details.');
-    }
-  })
-  .catch(function(err) {
-    showError('Failed to connect to Apps Script: ' + err.message + '. Make sure the script is deployed and getSummary is added.');
-  });
-
-// ── HELPER FUNCTIONS (needed before initReport runs) ──────────
+// Which months have current data (non-zero totals)
 function monthTotal(mi, data) {
-  return (window.ALL_CATS||[]).reduce(function(s,c){ return s + ((data[c]&&data[c][mi])||0); }, 0);
+  return ALL_CATS.reduce((s, c) => s + (data[c] ? (data[c][mi] || 0) : 0), 0);
 }
 function stdSubtotal(mi, data) {
-  return (window.STD_CATS||[]).reduce(function(s,c){ return s + ((data[c]&&data[c][mi])||0); }, 0);
+  return STD_CATS.reduce((s, c) => s + (data[c] ? (data[c][mi] || 0) : 0), 0);
 }
 function emgSubtotal(mi, data) {
-  return (window.EMG_CATS||[]).reduce(function(s,c){ return s + ((data[c]&&data[c][mi])||0); }, 0);
+  return EMG_CATS.reduce((s, c) => s + (data[c] ? (data[c][mi] || 0) : 0), 0);
 }
+
+const ACTIVE_MONTHS = MONTHS.map((_, i) => monthTotal(i, CURR) > 0);
+const LAST_ACTIVE_MI = ACTIVE_MONTHS.lastIndexOf(true);
 
 // ── VIEWS ─────────────────────────────────────────────────────
 let charts = {};
@@ -1005,7 +933,8 @@ function renderFullTable() {
   document.getElementById('fullTable').innerHTML = html;
 }
 
-// ── INIT is handled by initReport() called after live data loads ──
+// ── INIT ──────────────────────────────────────────────────────
+renderOverview();
 </script>
 </body>
 </html>
