@@ -508,9 +508,9 @@ function loadData() {
     var er = results[0], sr = results[1];
 
     // Debug bar — shows for 10 seconds
-    var debugMsg = 'success=' + er.success +
-      ' | entries=' + (er.data && er.data.entries ? er.data.entries.length : 'none') +
-      ' | sheets=' + (sr.data && sr.data.sheets ? sr.data.sheets.join(', ') : 'none') +
+    var sampleDates = (er.data && er.data.entries ? er.data.entries.slice(0,3).map(function(e){ return '"'+e.date+'"'; }).join(', ') : 'none');
+    var debugMsg = 'entries=' + (er.data && er.data.entries ? er.data.entries.length : 'none') +
+      ' | sample dates: ' + sampleDates +
       (er.error ? ' | ERROR: ' + er.error : '');
     showDebug(debugMsg);
 
@@ -788,7 +788,8 @@ function saveE() {
     if(!res.success){toast('Save failed: '+(res.error||'unknown'),'err');return;}
     hid('Mf');
     toast((editE?'Entry updated':'Entry saved')+' ✓','ok');
-    loadData();
+    // Reload just the current sheet so the new entry appears immediately
+    reloadCurrentSheet();
   }).catch(function(e){hideSpin();toast('Save failed: '+e.message,'err');});
 }
 
@@ -799,8 +800,30 @@ function delE(idx) {
   jsonp({action:'deleteEntry',sheet:e._sheet,row:e._row}).then(function(res){
     hideSpin();
     if(!res.success){toast('Delete failed: '+(res.error||'unknown'),'err');return;}
-    toast('Deleted ✓','ok'); loadData();
+    toast('Deleted ✓','ok');
+    reloadCurrentSheet();
   }).catch(function(e){hideSpin();toast('Delete failed: '+e.message,'err');});
+}
+
+// Reload entries for whichever sheet is currently selected in the filter
+function reloadCurrentSheet() {
+  var selectedSheet = document.getElementById('qM').value;
+  // If no sheet selected, use current month
+  if (!selectedSheet) {
+    var monthNames = ['January','February','March','April','May','June',
+                      'July','August','September','October','November','December'];
+    var now = new Date();
+    selectedSheet = monthNames[now.getMonth()] + ' ' + String(now.getFullYear()).slice(2);
+  }
+  showSpin('Refreshing…');
+  jsonp({action:'getEntries', month: selectedSheet}, 20000).then(function(er) {
+    hideSpin();
+    if (!er.success) { toast('Reload error: '+(er.error||'unknown'), 'err'); return; }
+    all = er.data.entries || [];
+    document.getElementById('hdrCnt').textContent = all.length.toLocaleString() + ' records';
+    fillDrops();
+    applyF();
+  }).catch(function(e){ hideSpin(); toast('Reload failed: '+e.message, 'err'); });
 }
 
 // ── EXPORT ───────────────────────────────────────────────────
