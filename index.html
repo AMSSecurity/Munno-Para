@@ -1161,42 +1161,50 @@
   const VAPID_KEY = 'BD065tcYL2aYPIKhX6jIwGeP8-Qu2QMievoX_DTA0KNeDTRK7oMhPDXHDdGr0mh0cUHs_9B7NWazPGPzFj-Gzt4';
 
   async function registerForPushNotifications(user) {
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'denied') return;
+    if (!('Notification' in window)) { console.log('FCM: Notifications not supported'); return; }
+    if (!('serviceWorker' in navigator)) { console.log('FCM: Service workers not supported'); return; }
 
     try {
-      // Request permission if not already granted
+      // Request permission
       const permission = await Notification.requestPermission();
+      console.log('FCM: Notification permission:', permission);
       if (permission !== 'granted') return;
+
+      // Register the Firebase messaging service worker explicitly
+      const swReg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+      console.log('FCM: Service worker registered:', swReg.scope);
+
+      // Wait for it to be active
+      await navigator.serviceWorker.ready;
+      console.log('FCM: Service worker ready');
 
       // Get FCM token
       const token = await getToken(messaging, {
         vapidKey: VAPID_KEY,
-        serviceWorkerRegistration: await navigator.serviceWorker.getRegistration('firebase-messaging-sw.js')
+        serviceWorkerRegistration: swReg
       });
 
-      if (!token) return;
+      if (!token) { console.log('FCM: No token returned'); return; }
+      console.log('FCM: Token obtained:', token.substring(0, 20) + '...');
 
-      // Save token to Firestore (keyed by user email so we can identify the device)
-      const tokenData = {
-        token,
-        email: user.email,
-        device: navigator.userAgent.substring(0, 100),
-        updated: serverTimestamp()
-      };
-
-      // Check if token already exists to avoid duplicates
-      const existing = await getDocs(
-        query(collection(db, 'fcm_tokens'))
-      );
+      // Save token to Firestore
+      const existing = await getDocs(query(collection(db, 'fcm_tokens')));
       const alreadySaved = existing.docs.some(d => d.data().token === token);
       if (!alreadySaved) {
-        await addDoc(collection(db, 'fcm_tokens'), tokenData);
-        console.log('FCM token registered');
+        await addDoc(collection(db, 'fcm_tokens'), {
+          token,
+          email: user.email,
+          device: navigator.userAgent.substring(0, 100),
+          updated: serverTimestamp()
+        });
+        console.log('FCM: Token saved to Firestore');
+      } else {
+        console.log('FCM: Token already in Firestore');
       }
 
-      // Handle foreground messages (app open)
+      // Handle foreground messages
       onMessage(messaging, (payload) => {
+        console.log('FCM: Foreground message received', payload);
         const title = payload.notification?.title || 'New Shift Note';
         const body = payload.notification?.body || '';
         showToast(title, body);
@@ -1204,8 +1212,7 @@
       });
 
     } catch(e) {
-      console.log('FCM registration failed:', e.message);
-      // Non-fatal — fall back to polling-only notifications
+      console.log('FCM: Registration failed —', e.message);
     }
   }
 
@@ -1223,7 +1230,6 @@
       loadNotes();
       loadDocs();
       startPolling();
-      requestNotificationPermission();
       registerForPushNotifications(user);
     } else {
       document.getElementById('login-screen').style.display = 'flex';
