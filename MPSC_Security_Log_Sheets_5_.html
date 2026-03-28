@@ -469,7 +469,10 @@ function stopAutoRefresh() {
   if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
 }
 function silentRefresh() {
-  Promise.all([jsonp({action:'getEntries'}), jsonp({action:'getSheets'})]).then(function(results) {
+  var selectedSheet = document.getElementById('qM') ? document.getElementById('qM').value : '';
+  var params = {action:'getEntries'};
+  if (selectedSheet) params.month = selectedSheet;
+  Promise.all([jsonp(params), jsonp({action:'getSheets'})]).then(function(results) {
     var er=results[0], sr=results[1];
     if (!er.success) return;
     var newEntries = er.data.entries || [];
@@ -506,10 +509,6 @@ function loadData() {
   ]).then(function(results) {
     hideSpin();
     var er = results[0], sr = results[1];
-
-    // Debug bar — shows for 15 seconds
-    var firstEntry = (er.data && er.data.entries && er.data.entries[0]) ? JSON.stringify(er.data.entries[0]) : 'NO ENTRIES';
-    showDebug('total=' + (er.data ? er.data.total : '?') + ' | first: ' + firstEntry.slice(0,200));
 
     if (!er.success) { toast('Load error: '+(er.error||'unknown'), 'err'); return; }
     all = er.data.entries || [];
@@ -607,10 +606,17 @@ function applyF() {
     'security log','security log / incidents details'];
 
   filt = all.filter(function(e){
-    // Strip out header rows the Apps Script included as data
     var inc = (e.incident||'').toLowerCase().trim();
-    if (headerValues.indexOf(inc) !== -1) return false;
+    // Skip blank rows
     if (!inc) return false;
+    // Skip exact header keyword matches
+    if (headerValues.indexOf(inc) !== -1) return false;
+    // Skip rows that look like a header — incident is "date" or "time" and officer is "officer"
+    if ((inc === 'date' || inc === 'time' || inc === 'incident') &&
+        (e.officer||'').toLowerCase() === 'officer') return false;
+    // Skip rows where date field contains a header word
+    var dateStr = (e.date||'').toLowerCase().trim();
+    if (dateStr === 'date' || dateStr === 'time') return false;
 
     if(q&&![e.incident,e.officer,e.details,e.location,e.reportRef].join(' ').toLowerCase().includes(q))return false;
     if(mo&&e._sheet!==mo)return false;
@@ -763,11 +769,14 @@ function openEdit(idx) {
   document.getElementById('Mf').style.display='flex';
 }
 
+var isSaving = false;
 function saveE() {
+  if (isSaving) return; // prevent double submit
   var inc=document.getElementById('fIn').value;
   var dt=document.getElementById('fDt').value;
   if(!inc){toast('Please select an incident type','err');return;}
   if(!dt){toast('Please enter a date','err');return;}
+  isSaving = true;
   var body={
     action:editE?'updateEntry':'addEntry',
     sheet:document.getElementById('fSh').value,
@@ -784,13 +793,13 @@ function saveE() {
   if(editE){body.row=editE._row;}
   showSpin(editE?'Updating…':'Saving to Google Sheets…');
   jsonp(body).then(function(res){
+    isSaving = false;
     hideSpin();
     if(!res.success){toast('Save failed: '+(res.error||'unknown'),'err');return;}
     hid('Mf');
     toast((editE?'Entry updated':'Entry saved')+' ✓','ok');
-    // Reload just the current sheet so the new entry appears immediately
     reloadCurrentSheet();
-  }).catch(function(e){hideSpin();toast('Save failed: '+e.message,'err');});
+  }).catch(function(e){isSaving=false;hideSpin();toast('Save failed: '+e.message,'err');});
 }
 
 function delE(idx) {
