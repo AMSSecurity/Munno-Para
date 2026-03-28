@@ -331,8 +331,13 @@
   footer { background: var(--navy); color: rgba(255,255,255,0.4); text-align: center; padding: 1.5rem; font-size: 12px; margin-top: 3rem; }
   footer span { color: var(--gold); }
 
-  /* ── SUB TABS ── */
-  .sub-tab-btn { padding: 11px 18px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap; margin-bottom: -1px; }
+  .attach-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:6px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--text-secondary); transition:all 0.15s; }
+  .attach-btn:hover { border-color:var(--navy); color:var(--navy); }
+  .camera-btn { background:#EFF6FF; color:#1D4ED8; border-color:#BFDBFE; }
+  .camera-btn:hover { background:#DBEAFE; }
+
+
+  .tab-btn-link { text-decoration: none; color: inherit; } font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap; margin-bottom: -1px; }
   .sub-tab-btn:hover { color: var(--text-primary); }
   .sub-tab-btn.active { color: var(--navy); border-bottom-color: var(--gold); }
   .sub-tab-content { display: none; }
@@ -362,7 +367,8 @@
   .report-kpi-change { font-size:12px; margin-top:4px; font-weight:500; }
   .kpi-up{color:#dc2626;} .kpi-down{color:#16a34a;} .kpi-zero{color:var(--text-muted);}
 
-
+  /* ══════════════════════════════════════
+     RESPONSIVE — TABLET (max 900px)
   ══════════════════════════════════════ */
   @media (max-width: 900px) {
     .main { grid-template-columns: 1fr; padding: 0 1rem; }
@@ -372,6 +378,7 @@
     .hero { padding: 2rem 1rem; }
     .hero-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
     .tab-bar { padding: 0 1rem; }
+    #report-kpi-grid { grid-template-columns: 1fr 1fr; }
   }
 
   /* ══════════════════════════════════════
@@ -380,13 +387,14 @@
   @media (max-width: 600px) {
 
     /* Login */
-    #login-screen { padding: 1rem; align-items: flex-start; padding-top: 3rem; }
+    #login-screen { padding: 1rem; align-items: center; padding-top: 2rem; }
     .login-card { padding: 1.75rem 1.25rem; border-radius: 12px; }
     .login-logo { width: 44px; height: 44px; font-size: 17px; }
     .login-card h1 { font-size: 1.2rem; }
+    .login-form input { font-size: 16px; } /* prevents iOS zoom */
 
     /* Nav */
-    nav { height: 56px; padding: 0 1rem; }
+    nav { height: auto; min-height: 56px; padding: 8px 1rem; flex-wrap: wrap; gap: 6px; }
     .nav-logo { width: 30px; height: 30px; font-size: 13px; }
     .nav-title { font-size: 13px; }
     .nav-subtitle { display: none; }
@@ -400,103 +408,130 @@
     .hero-badge { font-size: 10px; padding: 3px 8px; }
 
     /* Tab bar — scrollable, larger touch targets */
-    .tab-bar { padding: 0 0.5rem; gap: 2px; }
-    .tab-btn { padding: 12px 14px; font-size: 12px; }
+    .tab-bar { padding: 0; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn { padding: 13px 14px; font-size: 12px; flex-shrink: 0; }
+    .tab-badge { font-size: 9px; min-width: 16px; height: 16px; }
 
     /* Layout */
-    .main { padding: 0 0.75rem; margin: 1rem auto; gap: 1rem; }
+    .main { padding: 0 0.75rem; margin: 0.75rem auto; gap: 0.75rem; }
 
     /* Section cards */
-    .section-header { padding: 1rem; flex-wrap: wrap; gap: 8px; }
+    .section-card { border-radius: 8px; }
+    .section-header { padding: 0.875rem 1rem; flex-wrap: wrap; gap: 8px; }
     .section-title h2 { font-size: 14px; }
     .section-icon { width: 28px; height: 28px; font-size: 13px; }
     .form-wrap { padding: 1rem; gap: 1rem; }
 
-    /* Table — make it scrollable and readable on mobile */
+    /* POI Table */
     .register-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    table { font-size: 12px; min-width: 520px; }
+    table { font-size: 12px; min-width: 540px; }
     th { padding: 8px 10px; font-size: 10px; }
-    td { padding: 10px 10px; }
-    .poi-photo { width: 30px; height: 30px; }
-    .poi-no-photo { width: 30px; height: 30px; font-size: 13px; }
+    td { padding: 9px 10px; }
+    .poi-photo { width: 28px; height: 28px; }
+    .poi-no-photo { width: 28px; height: 28px; font-size: 12px; }
 
-    /* Status bar wraps tightly on mobile */
-    .status-bar { padding: 6px 10px 8px; gap: 3px; }
+    /* Status bar */
+    .status-bar { padding: 6px 10px 8px; gap: 3px; flex-wrap: wrap; }
     .sb { font-size: 10px; padding: 3px 7px; }
 
     /* Table toolbar */
     .table-toolbar { padding: 0.75rem 1rem; flex-wrap: wrap; gap: 8px; }
-    .table-toolbar input { min-width: 0; font-size: 14px; }
+    .table-toolbar input { min-width: 0; font-size: 16px; width: 100%; }
+    .table-toolbar .btn-ghost { font-size: 12px; padding: 7px 10px; }
 
-    /* Forms */
+    /* Forms — 16px prevents iOS zoom */
     .form-group label { font-size: 12px; }
     .form-group input,
     .form-group select,
-    .form-group textarea { font-size: 16px; padding: 10px 12px; } /* 16px stops iOS zoom */
+    .form-group textarea { font-size: 16px; padding: 10px 12px; }
     .form-group textarea { min-height: 90px; }
     .form-section-label { font-size: 10px; }
+    .form-row { grid-template-columns: 1fr; gap: 10px; }
 
     /* Image upload */
     .img-upload-zone { padding: 1.25rem 1rem; }
 
-    /* Buttons — bigger touch targets */
-    .btn-primary { padding: 9px 16px; font-size: 13px; }
-    .btn-ghost { padding: 9px 12px; font-size: 12px; }
-    .btn-submit { padding: 11px 20px; font-size: 14px; width: 100%; }
-    .btn-login { padding: 13px; font-size: 15px; }
+    /* Attach buttons */
+    .attach-btn { font-size: 13px; padding: 9px 16px; width: 100%; justify-content: center; }
+
+    /* Buttons */
+    .btn-primary { padding: 10px 16px; font-size: 13px; }
+    .btn-ghost { padding: 9px 12px; font-size: 13px; }
+    .btn-submit { padding: 13px 20px; font-size: 15px; width: 100%; }
+    .btn-login { padding: 14px; font-size: 15px; }
     .form-actions { flex-direction: column-reverse; gap: 8px; }
     .form-actions .btn-ghost { width: 100%; text-align: center; }
+    .btn-edit { font-size: 17px; padding: 4px 8px; }
+    .btn-delete { font-size: 17px; padding: 4px 8px; }
 
     /* Shift notes */
-    .note-item { padding: 1rem; }
-    .note-author { font-size: 12px; }
+    .note-item { padding: 0.875rem 1rem; }
+    .note-author { font-size: 13px; }
     .note-body { font-size: 13px; }
     .note-time { font-size: 10px; }
+    .note-ack-row { gap: 8px; }
+    .ack-checkbox { width: 26px; height: 26px; }
+    .note-action-form textarea { font-size: 16px; }
+    .note-action-form-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .note-action-form-row > div { width: 100%; justify-content: flex-end; }
+    .btn-action { padding: 9px 14px; font-size: 13px; }
+    .btn-add-action { padding: 8px 14px; font-size: 13px; }
 
     /* Documents */
     .doc-item { padding: 0.75rem 1rem; gap: 10px; }
     .doc-name { font-size: 13px; }
     .doc-meta { font-size: 11px; }
-    .doc-btn { width: 34px; height: 34px; font-size: 15px; }
+    .doc-btn { width: 36px; height: 36px; font-size: 16px; }
+    .upload-zone { padding: 1.25rem 1rem; }
+    .upload-zone strong { font-size: 13px; }
 
     /* Warnings banner */
-    #warnings-banner { padding: 0.75rem 1rem; }
+    #warnings-banner { padding: 0.75rem 1rem; gap: 6px; }
     .warning-item { padding: 8px 10px; gap: 8px; }
     .warning-item-name { font-size: 12px; }
     .warning-item-text { font-size: 11px; }
 
-    /* Sidebar — full width on mobile */
+    /* Sidebar — 2 col grid */
     .right-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .stat-num { font-size: 1.4rem; }
     .stat-label { font-size: 10px; }
-
-    /* Stats grid compact */
     .stat-cell { padding: 0.75rem 0.5rem; }
+    .sidebar-header { font-size: 12px; padding: 0.875rem 1rem; }
 
-    /* Daily log iframe */
-    #log-iframe { height: 60vh; }
+    /* Security log iframe */
+    #log-frame, #report-frame { height: calc(100vh - 110px); }
 
-    /* Edit modal */
-    .modal { border-radius: 10px 10px 0 0; max-height: 95vh; }
+    /* Edit modal — slides up from bottom */
     .modal-overlay { align-items: flex-end; padding: 0; }
+    .modal { border-radius: 14px 14px 0 0; max-height: 92vh; width: 100%; }
     .modal-header { padding: 1rem; }
-    .modal-footer { padding: 0.75rem 1rem; }
+    .modal-footer { padding: 0.875rem 1rem; }
 
     /* Doc viewer */
     .doc-viewer-header { padding: 0 1rem; height: 50px; }
-    .doc-viewer-header h3 { font-size: 12px; }
+    .doc-viewer-header h3 { font-size: 12px; max-width: 55%; }
     .btn-print { padding: 6px 12px; font-size: 12px; }
     .btn-viewer-close { padding: 6px 10px; font-size: 12px; }
 
-    /* Toast — full width on mobile */
+    /* Toast — full width */
     .toast { left: 0.75rem; right: 0.75rem; bottom: 1rem; min-width: unset; max-width: unset; }
 
     /* Lightbox */
-    .lightbox img { max-width: 96vw; max-height: 80vh; }
+    .lightbox img { max-width: 96vw; max-height: 82vh; }
     .lightbox-caption { font-size: 12px; padding: 5px 12px; }
+    .lightbox-close { top: 0.75rem; right: 0.75rem; }
+
+    /* Sub-tabs */
+    .sub-tab-btn { padding: 11px 14px; font-size: 12px; }
 
     /* Footer */
-    footer { padding: 1rem; font-size: 11px; margin-top: 2rem; }
+    footer { padding: 1rem; font-size: 11px; margin-top: 1.5rem; }
+
+    /* Report KPI — 2 col */
+    #report-kpi-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .report-kpi { padding: 1rem; }
+    .report-kpi-num { font-size: 1.5rem; }
   }
 
   /* ══════════════════════════════════════
@@ -504,8 +539,10 @@
   ══════════════════════════════════════ */
   @media (max-width: 380px) {
     .right-col { grid-template-columns: 1fr; }
-    .tab-btn { padding: 10px 10px; font-size: 11px; }
+    .tab-btn { padding: 12px 11px; font-size: 11px; }
     .hero h1 { font-size: 1.1rem; }
+    #report-kpi-grid { grid-template-columns: 1fr; }
+    .stat-num { font-size: 1.2rem; }
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -569,6 +606,8 @@
   <!-- TABS -->
   <div class="tab-bar">
     <button class="tab-btn active" id="tab-notes" onclick="switchTab('notes')">📋 Shift Notes <span id="notes-badge" class="tab-badge" style="display:none"></span></button>
+    <a href="https://amssecurity.wufoo.com/forms/z16hdq3m0aj8iyz/" target="_blank" class="tab-btn tab-btn-link">🚨 Incident Report</a>
+    <a href="https://amssecurity.wufoo.com/forms/z1qo4xhd142694f/" target="_blank" class="tab-btn tab-btn-link">⚠️ Hazard Report</a>
     <button class="tab-btn" id="tab-poi" onclick="switchTab('poi')">🔍 POI Register</button>
     <button class="tab-btn" id="tab-docs" onclick="switchTab('docs')">📁 Documents</button>
     <button class="tab-btn" id="tab-log" onclick="switchTab('log')">📋 Security Log</button>
@@ -791,8 +830,16 @@
             </div>
             <div class="form-group">
               <label>Attachment (optional)</label>
-              <input type="file" id="n-attachment" style="padding:8px 0; font-size:13px; color:var(--text-secondary);">
-              <small style="font-size:11px; color:var(--text-muted);">Photo, PDF or document — max 10MB</small>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+                <label class="attach-btn" for="n-attachment">📎 Choose File</label>
+                <label class="attach-btn camera-btn" for="n-camera">📷 Take Photo</label>
+              </div>
+              <input type="file" id="n-attachment" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx" style="display:none" onchange="showAttachPreview('n-attach-preview',this)">
+              <input type="file" id="n-camera" accept="image/*" capture="environment" style="display:none" onchange="showAttachPreview('n-attach-preview',this)">
+              <div id="n-attach-preview" style="display:none;margin-top:8px;font-size:12px;color:var(--text-secondary);background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:6px 10px;display:flex;align-items:center;gap:8px;">
+                <span id="n-attach-preview-name"></span>
+                <button onclick="clearAttach('n-attachment','n-camera','n-attach-preview')" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:14px;padding:0;line-height:1;">✕</button>
+              </div>
             </div>
             <hr class="form-divider">
             <div class="form-actions">
@@ -813,6 +860,7 @@
             <div class="stat-cell" id="notes-unread-cell"><div class="stat-num" id="notes-actioned">—</div><div class="stat-label">Unread</div></div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -1589,7 +1637,15 @@
             <textarea id="action-resp-${n.id}" placeholder="Describe what was done, who was contacted, outcome..."></textarea>
             <div class="form-group" style="margin-top:4px;">
               <label style="font-size:11px;color:var(--text-muted);">Attachment (optional)</label>
-              <input type="file" id="action-attach-${n.id}" style="font-size:12px;color:var(--text-secondary);padding:4px 0;">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+                <label class="attach-btn" style="font-size:11px;padding:5px 10px;" for="action-attach-${n.id}">📎 File</label>
+                <label class="attach-btn camera-btn" style="font-size:11px;padding:5px 10px;" for="action-cam-${n.id}">📷 Photo</label>
+              </div>
+              <input type="file" id="action-attach-${n.id}" accept="image/*,application/pdf,.doc,.docx" style="display:none" onchange="showAttachPreview('act-prev-${n.id}',this)">
+              <input type="file" id="action-cam-${n.id}" accept="image/*" capture="environment" style="display:none" onchange="showAttachPreview('act-prev-${n.id}',this)">
+              <div id="act-prev-${n.id}" style="display:none;margin-top:6px;font-size:12px;color:var(--text-secondary);background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:5px 10px;">
+                <span id="act-prev-name-${n.id}"></span>
+              </div>
             </div>
             <div class="note-action-form-row">
               <span style="font-size:11px;color:var(--text-muted)">Logged as: <strong>${auth.currentUser?.email?.split('@')[0]||'you'}</strong></span>
@@ -1664,7 +1720,8 @@
     if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
     try {
       let attachUrl = null, attachName = null;
-      const attachFile = document.getElementById('action-attach-' + id)?.files[0];
+      const attachFile = document.getElementById('action-attach-' + id)?.files[0]
+                      || document.getElementById('action-cam-' + id)?.files[0];
       if (attachFile) {
         const attachPath = 'note_attachments/' + Date.now() + '_' + attachFile.name;
         const attachRef = ref(storage, attachPath);
@@ -1695,7 +1752,8 @@
     try {
       // Upload attachment if selected
       let attachUrl = null, attachName = null;
-      const attachFile = document.getElementById('n-attachment').files[0];
+      const attachFile = document.getElementById('n-attachment').files[0]
+                      || document.getElementById('n-camera').files[0];
       if (attachFile) {
         if (attachFile.size > 10 * 1024 * 1024) { showAlert('note-error','⚠ Attachment must be under 10MB.'); btn.disabled=false; btn.textContent='Post Note'; return; }
         const attachPath = 'note_attachments/' + Date.now() + '_' + attachFile.name;
@@ -1730,7 +1788,30 @@
     document.getElementById('n-officer').value = '';
     document.getElementById('n-role').value = '';
     document.getElementById('n-attachment').value = '';
+    document.getElementById('n-camera').value = '';
+    const prev = document.getElementById('n-attach-preview');
+    if (prev) prev.style.display = 'none';
     hideAlerts('note');
+  };
+
+  window.showAttachPreview = function(previewId, input) {
+    const file = input.files[0];
+    if (!file) return;
+    const prev = document.getElementById(previewId);
+    if (!prev) return;
+    prev.style.display = 'flex';
+    const nameEl = document.getElementById(previewId + '-name') || prev.querySelector('span');
+    if (nameEl) nameEl.textContent = '📎 ' + file.name + ' (' + (file.size > 1024*1024 ? (file.size/1024/1024).toFixed(1)+'MB' : Math.round(file.size/1024)+'KB') + ')';
+    // If another input was used before, clear it
+    if (input.id === 'n-attachment') document.getElementById('n-camera').value = '';
+    if (input.id === 'n-camera') document.getElementById('n-attachment').value = '';
+  };
+
+  window.clearAttach = function(...ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.value = ''; el.style.display = 'none'; }
+    });
   };
 
   // ══════════════════════════════
