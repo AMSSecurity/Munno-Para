@@ -337,7 +337,33 @@
   .camera-btn:hover { background:#DBEAFE; }
 
 
-  .tab-btn-link { text-decoration: none; color: inherit; } font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap; margin-bottom: -1px; }
+  .tab-btn-link { text-decoration: none; color: inherit; }
+
+  /* ── POI VIEW MODAL ── */
+  .poi-view-modal { position:fixed; inset:0; z-index:1200; background:rgba(13,27,42,0.6); display:flex; align-items:flex-end; backdrop-filter:blur(3px); }
+  .poi-view-panel { background:var(--white); width:100%; max-height:92vh; border-radius:16px 16px 0 0; overflow-y:auto; box-shadow:0 -8px 40px rgba(0,0,0,0.2); }
+  .poi-view-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--white); z-index:1; }
+  .poi-view-header h3 { font-size:16px; font-weight:700; color:var(--navy); }
+  .poi-view-body { padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1rem; }
+  .poi-view-photo { width:90px; height:90px; border-radius:10px; object-fit:cover; border:2px solid var(--border); cursor:pointer; }
+  .poi-view-no-photo { width:90px; height:90px; border-radius:10px; background:var(--surface); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:32px; }
+  .poi-view-field { display:flex; flex-direction:column; gap:3px; }
+  .poi-view-field label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); }
+  .poi-view-field span { font-size:14px; color:var(--text-primary); line-height:1.5; }
+  .poi-view-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .poi-related-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 14px; cursor:pointer; transition:all 0.15s; }
+  .poi-related-card:hover { border-color:var(--navy); background:rgba(13,27,42,0.03); }
+  .poi-related-card .rc-name { font-size:13px; font-weight:600; color:var(--navy); }
+  .poi-related-card .rc-date { font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+  /* ── POI MOBILE CARDS ── */
+  @media (max-width: 600px) {
+    #poi-table { display: none !important; }
+    #poi-cards { display: flex; flex-direction: column; gap: 10px; padding: 0.75rem; }
+  }
+  @media (min-width: 601px) {
+    #poi-cards { display: none; }
+  }
   .sub-tab-btn:hover { color: var(--text-primary); }
   .sub-tab-btn.active { color: var(--navy); border-bottom-color: var(--gold); }
   .sub-tab-content { display: none; }
@@ -499,8 +525,24 @@
     .stat-cell { padding: 0.75rem 0.5rem; }
     .sidebar-header { font-size: 12px; padding: 0.875rem 1rem; }
 
-    /* Security log iframe */
-    #log-frame, #report-frame { height: calc(100vh - 110px); }
+    /* POI register — hide sidebar on mobile, full width */
+    #content-poi .right-col { display: none; }
+    #content-poi .left-col { grid-column: 1; }
+    #content-poi .main { grid-template-columns: 1fr; }
+
+    /* Documents — stack upload below list, full width */
+    #content-docs .right-col { display: none; }
+    #content-docs .main { grid-template-columns: 1fr; }
+    .upload-zone { padding: 1.5rem 1rem; }
+    .upload-zone strong { font-size: 13px; }
+    .doc-item { padding: 0.75rem 1rem; }
+    .doc-actions { gap: 4px; }
+    .doc-btn { width: 38px; height: 38px; font-size: 16px; }
+
+    /* POI register toolbar stacks */
+    #content-poi .table-toolbar { flex-direction: column; gap: 8px; }
+    #content-poi .table-toolbar input { width: 100%; font-size: 16px; }
+    #content-poi .table-toolbar .btn-ghost { align-self: flex-end; }
 
     /* Edit modal — slides up from bottom */
     .modal-overlay { align-items: flex-end; padding: 0; }
@@ -606,11 +648,11 @@
   <!-- TABS -->
   <div class="tab-bar">
     <button class="tab-btn active" id="tab-notes" onclick="switchTab('notes')">📋 Shift Notes <span id="notes-badge" class="tab-badge" style="display:none"></span></button>
-    <a href="https://amssecurity.wufoo.com/forms/z16hdq3m0aj8iyz/" target="_blank" class="tab-btn tab-btn-link">🚨 Incident Report</a>
-    <a href="https://amssecurity.wufoo.com/forms/z1qo4xhd142694f/" target="_blank" class="tab-btn tab-btn-link">⚠️ Hazard Report</a>
+    <button class="tab-btn" id="tab-log" onclick="switchTab('log')">📋 Security Log</button>
+    <a href="https://amssecurity.wufoo.com/forms/z16hdq3m0aj8iyz/" target="_blank" class="tab-btn tab-btn-link">🚨 Security Reports</a>
+    <a href="https://amssecurity.wufoo.com/forms/z1qo4xhd142694f/" target="_blank" class="tab-btn tab-btn-link">⚠️ Maintenance Reports</a>
     <button class="tab-btn" id="tab-poi" onclick="switchTab('poi')">🔍 POI Register</button>
     <button class="tab-btn" id="tab-docs" onclick="switchTab('docs')">📁 Documents</button>
-    <button class="tab-btn" id="tab-log" onclick="switchTab('log')">📋 Security Log</button>
   </div>
 
   <!-- ══ TAB: POI REGISTER ══ -->
@@ -636,6 +678,7 @@
               <thead><tr><th>Photo</th><th>Name</th><th>Incident Date/Time</th><th>Details</th><th>Status</th><th>Officer</th><th></th></tr></thead>
               <tbody id="poi-tbody"></tbody>
             </table>
+            <div id="poi-cards"></div>
             <div id="table-empty" class="empty-state" style="display:none">No entries found.</div>
           </div>
         </div>
@@ -968,6 +1011,17 @@
     </div>
   </div>
 
+  <!-- ══ POI VIEW MODAL ══ -->
+  <div class="poi-view-modal" id="poi-view-modal" style="display:none" onclick="if(event.target===this)closePOIView()">
+    <div class="poi-view-panel" id="poi-view-panel">
+      <div class="poi-view-header">
+        <h3 id="poi-view-title">POI Record</h3>
+        <button class="modal-close" onclick="closePOIView()">✕</button>
+      </div>
+      <div class="poi-view-body" id="poi-view-body"></div>
+    </div>
+  </div>
+
   <footer>&copy; 2025 <span>AMS Security</span> — Munno Para Site Portal &nbsp;·&nbsp; Authorised Use Only</footer>
 
   <!-- ══ TOAST NOTIFICATION ══ -->
@@ -1155,17 +1209,18 @@
 
   function renderTable(rows) {
     document.getElementById('table-loading').style.display = 'none';
-    const tbody = document.getElementById('poi-tbody');
-    tbody.innerHTML = '';
     document.getElementById('record-count').textContent = rows.length + ' record' + (rows.length !== 1 ? 's' : '');
     if (rows.length === 0) {
       document.getElementById('poi-table').style.display = 'none';
+      document.getElementById('poi-cards').innerHTML = '';
       document.getElementById('table-empty').style.display = 'block';
       return;
     }
     document.getElementById('poi-table').style.display = 'table';
     document.getElementById('table-empty').style.display = 'none';
     const repeatMap = buildRepeatMap(allPOIs);
+    const tbody = document.getElementById('poi-tbody');
+    tbody.innerHTML = '';
     rows.forEach(poi => {
       const tr = document.createElement('tr');
       const incidentDT = [poi.incident_date, poi.incident_time].filter(Boolean).join(' ') || '—';
@@ -1178,7 +1233,7 @@
       const statusBar = buildStatusBar(poi, isRepeat);
       tr.innerHTML = `
         <td>${photo}</td>
-        <td><strong>${esc(poi.name || 'Unknown')}</strong></td>
+        <td><strong class="poi-name-link" onclick="openPOIView('${poi.id}')" style="cursor:pointer;color:var(--navy);text-decoration:underline;text-decoration-style:dotted;">${esc(poi.name || 'Unknown')}</strong></td>
         <td style="white-space:nowrap;font-size:12px">${esc(incidentDT)}</td>
         <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">${esc(poi.details || '')}</td>
         <td style="min-width:200px">${statusBar}</td>
@@ -1189,6 +1244,35 @@
         </td>`;
       tbody.appendChild(tr);
     });
+
+    // Mobile card view
+    const cards = document.getElementById('poi-cards');
+    cards.innerHTML = rows.map(poi => {
+      const isRepeat = (repeatMap[nameKey(poi.name)] || 0) > 1;
+      const statusBar = buildStatusBar(poi, isRepeat);
+      const incidentDT = [poi.incident_date, poi.incident_time].filter(Boolean).join(' ') || '—';
+      const photoHtml = poi.image_url
+        ? `<img src="${esc(poi.image_url)}" style="width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer;flex-shrink:0;" onclick="openLightbox('${esc(poi.image_url)}','${esc(poi.name||'')}')">`
+        : `<div style="width:52px;height:52px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👤</div>`;
+      return `<div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          ${photoHtml}
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:700;color:var(--navy);cursor:pointer;text-decoration:underline;text-decoration-style:dotted;" onclick="openPOIView('${poi.id}')">${esc(poi.name||'Unknown')}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${esc(incidentDT)}</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${esc(poi.details||'')}</div>
+          </div>
+        </div>
+        <div>${statusBar}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:8px;">
+          <span style="font-size:11px;color:var(--text-muted);">Officer: ${esc(poi.officer||'—')}</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-edit" onclick="openEditModal('${poi.id}')" title="Edit">✎</button>
+            <button class="btn-delete" onclick="deletePOI('${poi.id}')" title="Delete">✕</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
   }
 
   function nameKey(name) { return (name||'').toLowerCase().trim().replace(/\s+/g,' '); }
@@ -2186,6 +2270,79 @@
     }
   };
 
+  // ══════════════════════════════
+  // POI VIEW MODAL
+  // ══════════════════════════════
+  window.openPOIView = function(id) {
+    const poi = allPOIs.find(p => p.id === id);
+    if (!poi) return;
+
+    // Find all records with same name
+    const related = allPOIs.filter(p => p.id !== id && nameKey(p.name) === nameKey(poi.name));
+    const repeatMap = buildRepeatMap(allPOIs);
+    const isRepeat = (repeatMap[nameKey(poi.name)] || 0) > 1;
+    const statusBar = buildStatusBar(poi, isRepeat);
+    const incidentDT = [poi.incident_date, poi.incident_time].filter(Boolean).join(' ') || '—';
+
+    const photoHtml = poi.image_url
+      ? `<img src="${esc(poi.image_url)}" class="poi-view-photo" onclick="openLightbox('${esc(poi.image_url)}','${esc(poi.name||'')}')" alt="POI photo">`
+      : `<div class="poi-view-no-photo">👤</div>`;
+
+    const field = (label, value) => value ? `<div class="poi-view-field"><label>${label}</label><span>${esc(value)}</span></div>` : '';
+
+    const relatedHtml = related.length > 0 ? `
+      <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:0.5rem;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--danger);margin-bottom:10px;">⚠ ${related.length} other record${related.length>1?'s':''} found for this name</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${related.map(r => `
+            <div class="poi-related-card" onclick="closePOIView();setTimeout(()=>openPOIView('${r.id}'),100)">
+              <div class="rc-name">${esc(r.name||'Unknown')}</div>
+              <div class="rc-date">${esc([r.incident_date,r.incident_time].filter(Boolean).join(' ')||'No date')} · ${esc(r.officer||'Unknown officer')}</div>
+              <div style="margin-top:6px">${buildStatusBar(r, false)}</div>
+            </div>`).join('')}
+        </div>
+      </div>` : '';
+
+    document.getElementById('poi-view-title').textContent = poi.name || 'Unknown';
+    document.getElementById('poi-view-body').innerHTML = `
+      <div style="display:flex;gap:16px;align-items:flex-start;">
+        ${photoHtml}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:18px;font-weight:700;color:var(--navy);margin-bottom:6px;">${esc(poi.name||'Unknown')}</div>
+          ${statusBar}
+        </div>
+      </div>
+      <div class="poi-view-grid">
+        ${field('Incident Date & Time', incidentDT)}
+        ${field('Reporting Officer', poi.officer)}
+      </div>
+      ${field('Incident Details', poi.details)}
+      <div class="poi-view-grid">
+        ${field('Banned', poi.banned === 'Yes' ? `Yes${poi.ban_duration?' · '+poi.ban_duration:''}${poi.ban_expiry?' · Expiry: '+poi.ban_expiry:''}` : poi.banned)}
+        ${field('Arrested', poi.arrested)}
+      </div>
+      ${poi.bail === 'Yes' ? `<div class="poi-view-grid">
+        ${field('On Bail', 'Yes')}
+        ${field('Bail Conditions', poi.bail_conditions)}
+      </div>
+      ${field('Bail Details', poi.bail_details)}
+      ${field('Bail Expiry', poi.bail_expiry_date)}` : ''}
+      ${field('Additional Info / Warnings', poi.warnings)}
+      <div style="display:flex;gap:8px;padding-top:4px;border-top:1px solid var(--border);">
+        <button class="btn-ghost" style="flex:1" onclick="closePOIView();openEditModal('${poi.id}')">✎ Edit Record</button>
+        <button class="btn-delete" onclick="closePOIView();deletePOI('${poi.id}')">✕ Delete</button>
+      </div>
+      ${relatedHtml}
+    `;
+    document.getElementById('poi-view-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closePOIView = function() {
+    document.getElementById('poi-view-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
   window.openLightbox = function(url, caption) {
     document.getElementById('lightbox-img').src = url;
     document.getElementById('lightbox-caption').textContent = caption || '';
@@ -2206,6 +2363,7 @@
       closeLightbox();
       closeDocViewer();
       closeEditModal();
+      closePOIView();
     }
   });
 </script>
