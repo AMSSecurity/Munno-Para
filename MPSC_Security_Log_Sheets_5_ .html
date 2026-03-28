@@ -568,23 +568,61 @@ function applyF() {
     if(mo&&e._sheet!==mo)return false;
     if(ty&&e.incident!==ty)return false;
     if(of&&e.officer!==of)return false;
-    if(fr&&e.date&&e.date<fr)return false;
-    if(to&&e.date&&e.date>to)return false;
+    if(fr&&e.date&&toISO(e.date)<fr)return false;
+    if(to&&e.date&&toISO(e.date)>to)return false;
     return true;
   });
   filt.sort(function(a,b){
     var va, vb;
     if (sk === 'datetime') {
-      va = (a.date||'') + ' ' + (a.time||'');
-      vb = (b.date||'') + ' ' + (b.time||'');
+      va = parseDate(a.date) * 10000 + parseTime(a.time);
+      vb = parseDate(b.date) * 10000 + parseTime(b.time);
+      return sd === -1 ? vb - va : va - vb;
     } else {
       va = (a[sk]||'').toLowerCase();
       vb = (b[sk]||'').toLowerCase();
+      return va<vb?sd:va>vb?-sd:0;
     }
-    return va<vb?sd:va>vb?-sd:0;
   });
   document.getElementById('fcnt').textContent = filt.length.toLocaleString()+' shown';
   pg=1; rndr();
+}
+
+// Parse a date string in any common format to a comparable number (YYYYMMDD)
+function parseDate(str) {
+  if (!str) return 0;
+  str = String(str).trim();
+  // Already ISO: 2026-03-27
+  var iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return parseInt(iso[1]+iso[2]+iso[3]);
+  // DD/MM/YYYY or DD-MM-YYYY
+  var dmy = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (dmy) return parseInt(dmy[3]+dmy[2].padStart(2,'0')+dmy[1].padStart(2,'0'));
+  // MM/DD/YYYY
+  var mdy = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (mdy) {
+    var yr = mdy[3].length === 2 ? '20'+mdy[3] : mdy[3];
+    return parseInt(yr+mdy[1].padStart(2,'0')+mdy[2].padStart(2,'0'));
+  }
+  // Try native parse as last resort
+  var d = new Date(str);
+  return isNaN(d) ? 0 : d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
+}
+
+// Parse time string HH:MM to a number for sorting
+function parseTime(str) {
+  if (!str) return 0;
+  var parts = String(str).trim().split(':');
+  return parseInt(parts[0]||0)*100 + parseInt(parts[1]||0);
+}
+
+// Convert any date string to ISO yyyy-mm-dd for filter comparison
+function toISO(str) {
+  if (!str) return '';
+  var n = parseDate(str);
+  if (!n) return '';
+  var s = String(n);
+  return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8);
 }
 
 function clearF() {
@@ -594,7 +632,7 @@ function clearF() {
   applyF();
 }
 
-function srt(key) { if(sk===key)sd*=-1; else{sk=key;sd=1;} applyF(); }
+function srt(key) { if(sk===key){sd*=-1;}else{sk=key; sd=(key==='datetime')?-1:1;} applyF(); }
 
 // ── RENDER ───────────────────────────────────────────────────
 function rndr() {
