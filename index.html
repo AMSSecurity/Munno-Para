@@ -1209,7 +1209,11 @@
         const body = payload.notification?.body || '';
         showToast(title, body);
         playChime();
+        updateBadge();
       });
+
+      fcmActive = true; // FCM is working — suppress polling notifications
+      console.log('FCM: Active — polling notifications suppressed');
 
     } catch(e) {
       console.log('FCM: Registration failed —', e.message);
@@ -2200,7 +2204,7 @@
   // ══════════════════════════════
   // NOTIFICATION SYSTEM
   // ══════════════════════════════
-  let lastNoteTimestamp = null;
+  let fcmActive = false; // set true once FCM is registered — disables polling toasts
   let newNotesCount = 0;
   let currentTab = 'notes';
   let pollInterval = null;
@@ -2312,13 +2316,16 @@
         newNotesCount += newDocs.length;
         lastNoteTimestamp = latestTime;
 
-        // Only alert if not currently on notes tab
-        if (currentTab !== 'notes') {
+        // Only alert via polling if FCM is not active
+        if (currentTab !== 'notes' && !fcmActive) {
           playChime();
           const officer = latest.officer || 'Unknown officer';
           const preview = (latest.body || '').substring(0, 60) + ((latest.body||'').length > 60 ? '...' : '');
           showToast(`New shift note — ${officer}`, preview);
           sendPushNotification(`📋 New Shift Note — ${officer}`, preview);
+          updateBadge();
+        } else if (currentTab !== 'notes' && fcmActive) {
+          // FCM handles the notification — just update the badge
           updateBadge();
         } else {
           // On notes tab — just silently refresh
