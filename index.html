@@ -6,7 +6,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Munno Para">
 <meta name="theme-color" content="#0D1B2A">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Munno Para — AMS Security Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -867,7 +870,7 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Reporting Officer *</label>
+                <label>Entry By *</label>
                 <input type="text" id="n-officer" placeholder="Full name">
               </div>
             </div>
@@ -2402,6 +2405,13 @@
       closePOIView();
     }
   });
+
+  // Register service worker for PWA (install to home screen) support
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
 </script>
 
 </body>
