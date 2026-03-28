@@ -507,12 +507,9 @@ function loadData() {
     hideSpin();
     var er = results[0], sr = results[1];
 
-    // Debug bar — shows for 10 seconds
-    var sampleDates = (er.data && er.data.entries ? er.data.entries.slice(0,3).map(function(e){ return '"'+e.date+'"'; }).join(', ') : 'none');
-    var debugMsg = 'entries=' + (er.data && er.data.entries ? er.data.entries.length : 'none') +
-      ' | sample dates: ' + sampleDates +
-      (er.error ? ' | ERROR: ' + er.error : '');
-    showDebug(debugMsg);
+    // Debug bar — shows for 15 seconds
+    var firstEntry = (er.data && er.data.entries && er.data.entries[0]) ? JSON.stringify(er.data.entries[0]) : 'NO ENTRIES';
+    showDebug('total=' + (er.data ? er.data.total : '?') + ' | first: ' + firstEntry.slice(0,200));
 
     if (!er.success) { toast('Load error: '+(er.error||'unknown'), 'err'); return; }
     all = er.data.entries || [];
