@@ -503,12 +503,18 @@ function fillDrops() {
   var of=[...new Set(all.map(function(e){return e.officer||'';}).filter(Boolean))].sort();
   fillSel('qM', mn); fillSel('qT', ty); fillSel('qO', of);
 
-  // Pre-fill today's date so current day entries show first
-  var today = new Date().toISOString().slice(0,10);
-  var frEl = document.getElementById('qFr');
-  var toEl = document.getElementById('qTo');
-  if (firstLoad && frEl && !frEl.value) frEl.value = today;
-  if (firstLoad && toEl && !toEl.value) toEl.value = today;
+  // On first load: show 1st of current month through today, sorted newest first
+  if (firstLoad) {
+    var now = new Date();
+    var today = now.toISOString().slice(0,10);
+    var firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+    var frEl = document.getElementById('qFr');
+    var toEl = document.getElementById('qTo');
+    if (frEl && !frEl.value) frEl.value = firstOfMonth;
+    if (toEl && !toEl.value) toEl.value = today;
+    // Ensure sort is datetime descending (newest at top)
+    sk = 'datetime'; sd = -1;
+  }
 }
 
 function fillSel(id, vals) {
