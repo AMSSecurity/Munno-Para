@@ -807,14 +807,23 @@ function delE(idx) {
 
 // Reload entries for whichever sheet is currently selected in the filter
 function reloadCurrentSheet() {
-  var selectedSheet = document.getElementById('qM').value;
-  // If no sheet selected, use current month
-  if (!selectedSheet) {
+  // Get the currently selected sheet from the dropdown
+  var qM = document.getElementById('qM');
+  var selectedSheet = qM ? qM.value : '';
+
+  // If nothing selected, find current month sheet from the sheets list
+  if (!selectedSheet && sheets.length > 0) {
     var monthNames = ['January','February','March','April','May','June',
                       'July','August','September','October','November','December'];
     var now = new Date();
-    selectedSheet = monthNames[now.getMonth()] + ' ' + String(now.getFullYear()).slice(2);
+    var monthName = monthNames[now.getMonth()];
+    var yr = String(now.getFullYear()).slice(2);
+    var match = sheets.find(function(s) {
+      return s.toLowerCase().includes(monthName.toLowerCase()) && s.includes(yr);
+    });
+    selectedSheet = match || sheets[sheets.length - 1];
   }
+
   showSpin('Refreshing…');
   jsonp({action:'getEntries', month: selectedSheet}, 20000).then(function(er) {
     hideSpin();
@@ -822,6 +831,10 @@ function reloadCurrentSheet() {
     all = er.data.entries || [];
     document.getElementById('hdrCnt').textContent = all.length.toLocaleString() + ' records';
     fillDrops();
+    // Re-apply the same sheet filter so user stays on same view
+    if (selectedSheet && document.getElementById('qM')) {
+      document.getElementById('qM').value = selectedSheet;
+    }
     applyF();
   }).catch(function(e){ hideSpin(); toast('Reload failed: '+e.message, 'err'); });
 }
